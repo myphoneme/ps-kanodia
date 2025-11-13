@@ -1,0 +1,185 @@
+.container {
+  max-width: 64rem; 
+  margin: 0 auto;
+  padding: 1.5rem;
+  /* background-color: #fff; */
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  /* border-top: 20px solid #1D4ED8; */
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700; 
+  color: #1F2937;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  /* color: #4B5563;  */
+  margin-bottom: 0.5rem;
+} 
+
+.input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #3B82F6; 
+}
+
+.toolbar {
+  border: 1px solid #E5E7EB; 
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: #F9FAFB; 
+  padding: 0.5rem;
+}
+
+.toolbarButtons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* .toolbarButton {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+} */
+
+/* .toolbarButton:hover {
+  background-color: #E5E7EB; 
+} */
+
+/* .toolbarButtonActive {
+  background-color: #E5E7EB;
+}
+ */
+/* .editorContainer {
+  border: 1px solid #E5E7EB;
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 1rem;
+} */
+
+.editor {
+  font-family: serif;
+  font-size: 1.125rem;
+  max-width: none;
+  outline: none;
+  min-height: 250px;
+}
+
+.submitButton {
+  padding: 0.5rem 1.5rem;
+  background-color: #4177eb; 
+  color: #fff;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+  width: 150px;
+}
+
+.submitButton:hover {
+  background-color: #1D4ED8; 
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+.select{
+  width: 100%;
+  padding: 10px;
+  outline: none;
+  border: 1px solid #f1f1f1;
+}
+.quillEditor :global(.ql-editor img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.quillEditor {
+  min-height: 300px;
+  /* color: #fff */
+}
+
+/* This targets the actual text area inside the editor */
+/* .quillEditor :global(.ql-editor) {
+  min-height: 200px;
+  padding: 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: var(--editor-bg, white);
+  color: var(--editor-color, black);
+}
+.quillEditor :global(.ql-toolbar) {
+  background-color: var(--editor-toolbar-bg, #f3f3f3);
+  color: var(--editor-color, black);
+  border: 1px solid #ccc;
+} */
+
+.quillEditor :global(.ql-editor) {
+  min-height: 200px;
+  padding: 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: var(--editor-bg);
+  /* color: var(--editor-color); */
+}
+
+.quillEditor :global(.ql-toolbar) {
+  background-color: var(--editor-toolbar-bg);
+  color: var(--editor-color);
+  border: 1px solid #ccc;
+}
+
+.quillEditor :global(.ql-toolbar button),
+.quillEditor :global(.ql-toolbar .ql-picker-label),
+.quillEditor :global(.ql-toolbar .ql-picker-item) {
+  /* color: var(--editor-color); */
+  fill: var(--editor-color);
+}
+
+
+/* Make toolbar icons white in dark mode */
+.quillEditor :global(.ql-toolbar button svg),
+.quillEditor :global(.ql-toolbar .ql-picker-label),
+.quillEditor :global(.ql-toolbar .ql-picker-item) {
+  color: var(--editor-color);
+  fill: var(--editor-color);
+}
+
+/* Optional: white border focus/hover for better visibility */
+.quillEditor :global(.ql-toolbar button:hover),
+.quillEditor :global(.ql-toolbar .ql-picker-label:hover),
+.quillEditor :global(.ql-toolbar .ql-picker-item:hover) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.quillEditor :global(.ql-picker-options) {
+  background-color: var(--editor-toolbar-bg);
+  border: 1px solid #444;
+}
+.ql-snow.ql-toolbar button{
+  background-color: #fff;
+}
+
