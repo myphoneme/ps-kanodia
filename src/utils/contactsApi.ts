@@ -20,7 +20,7 @@ const BASE = 'https://capsk.co.in/api/contacts';
 export async function insertContact(payload: ContactPayload): Promise<{ status: string; message: string }> {
   const response = await fetch('https://capsk.co.in/api/contacts/insert.php', {
     method: 'POST',
-    // headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
   const data = await response.json();
@@ -30,8 +30,11 @@ export async function insertContact(payload: ContactPayload): Promise<{ status: 
   return data;
 }
 
-export async function getContacts(): Promise<ContactRecord[]> {
-  const res = await fetch(`${BASE}/get.php`, { method: 'GET' });
+export async function getContacts(token : string): Promise<ContactRecord[]> {
+  const res = await fetch(`${BASE}/get.php`, { 
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+   });
   if (!res.ok) {
     throw new Error('Failed to fetch contacts');
   }
@@ -43,13 +46,14 @@ export async function getContacts(): Promise<ContactRecord[]> {
 }
 
 export async function deleteContact(
-  id: number | string
+  id: number | string, token?: string
   // token?: string
 ): Promise<{ status: string; message: string; deleted_id?: string }> {
   // const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   
   const res = await fetch(`${BASE}/delete.php`, {
     method: 'POST',
+    headers: token ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } : { 'Content-Type': 'application/json' },
     body: JSON.stringify({ id: typeof id === 'string' ? parseInt(id, 10) : id }),
   });
   if (!res.ok) {

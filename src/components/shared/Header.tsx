@@ -26,12 +26,13 @@ export default function Header({ onLogin, isLoggedIn, onLogout, onNavigate }: He
         <div className={styles.container}>
           <button className={styles.logo} onClick={() => handleNavClick('landing')}>
             <div className={styles.logoIcon}>
-              <img
-              src="../../uploads/static/logo.png"
-              width={45}
+              {/* <img
+              src="/logo.png"
               height={45}
               alt="Logo"
-/>
+/> */}
+<img src="/logo.png" width={45} height={45} alt="Logo" />
+
             </div>
             <div>
               <h1 className={styles.logoText}>P.S Kanodia & Co.</h1>

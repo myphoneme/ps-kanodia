@@ -271,12 +271,12 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
             </div>
             <div>
               {showSuccess && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-                  <p className="text-green-800 font-medium text-sm">Message sent successfully!</p>
+                <div className="p-3 mb-4 text-center border border-green-200 rounded-lg bg-green-50">
+                  <p className="text-sm font-medium text-green-800">Message sent successfully!</p>
                 </div>
               )}
               {contactError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center text-red-700 text-sm">
+                <div className="p-3 mb-4 text-sm text-center text-red-700 border border-red-200 rounded-lg bg-red-50">
                   {contactError}
                 </div>
               )}
@@ -314,7 +314,7 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
         </div>
       </section>
 
-      <Footer />
+     
     </div>
   );
 }

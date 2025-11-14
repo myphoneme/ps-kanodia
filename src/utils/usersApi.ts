@@ -24,6 +24,7 @@ export async function getUsers(token: string): Promise<UserRecord[]> {
   // console.log("token: "+ token);
   const response = await fetch('https://capsk.co.in/api/users/read.php', {
     method: 'GET',
+    headers: defaultHeaders(token)
   
   });
 
@@ -55,7 +56,7 @@ export async function createUser(payload: CreateUserPayload, token: string): Pro
 export async function deleteUser(id: string, token: string): Promise<void> {
   const response = await fetch('https://capsk.co.in/api/users/delete.php', {
     method: 'POST',
-    
+    headers: defaultHeaders(token),
     body: JSON.stringify({ id: parseInt(id, 10) }),
   });
 
