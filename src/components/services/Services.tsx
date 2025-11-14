@@ -4,51 +4,60 @@ import styles from './Services.module.css';
 const SERVICES = [
   {
     id: 1,
-    icon: FileText,
-    title: 'Taxation Services',
-    description: 'Complete income tax, GST, and TDS filing with expert guidance on tax planning and optimization strategies.',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
-    features: ['Income Tax Filing', 'GST Compliance', 'TDS Management', 'Tax Planning'],
+    icon: Shield,
+    title: 'Audit & Assurance',
+    // description: 'Statutory audits, internal audits, and comprehensive assurance services ensuring full compliance.',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
+    features: ['Statutory Audits of PSU, Banks and Others','Tax Audits','Internal Audits','Stock and Receivable Audits','Revenue and Concurrent Audit of Banks','Inspection and Investigation Audits','Reviews and Compilations and attestation services','Establishing and Reviewing Internal Control Systems','Defining Standard Operations Processes'],
   },
   {
     id: 2,
-    icon: Calculator,
-    title: 'Accounting & Bookkeeping',
-    description: 'Complete accounting solutions with financial statement preparation and bookkeeping for businesses of all sizes.',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=500&h=300&fit=crop',
-    features: ['Journal Entries', 'Financial Statements', 'Reconciliation', 'Ledger Management'],
-  },
+    icon: FileText,
+    title: 'Tax and Litigation Support',
+    // description: 'Complete income tax, GST, and TDS filing with expert guidance on tax planning and optimization strategies.',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
+    features: [' Domestic Tax Planning and Consultancy', 'Tax administrations including submission of tax returns', 'Assessment proceedings', 'Search, Seizure and Survey proceedings', 'Income Tax Appellate & ITAT'],
+  }
+  ,
   {
     id: 3,
-    icon: Shield,
-    title: 'Audit & Assurance',
-    description: 'Statutory audits, internal audits, and comprehensive assurance services ensuring full compliance.',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    features: ['Statutory Audits', 'Internal Audits', 'Tax Audits', 'Risk Assessment'],
+    icon: FileText,
+    title: 'International Tax',
+    // description: 'Complete income tax, GST, and TDS filing with expert guidance on tax planning and optimization strategies.',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
+    features: ['International Tax Planning and Consultancy', 'Consultancy on Double Tax Avoidance Agreement'],
   },
   {
     id: 4,
     icon: TrendingUp,
-    title: 'Financial Advisory',
-    description: 'Strategic financial planning, investment advisory, and business consulting to drive growth.',
+    title: 'Indirect Tax',
+    // description: 'Strategic financial planning, investment advisory, and business consulting to drive growth.',
     image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
-    features: ['Business Planning', 'Investment Advisory', 'Cost Analysis', 'Growth Strategy'],
+    features: ['GST advisory and Compliance Services','Custom related advisory Services'],
   },
   {
     id: 5,
     icon: Users,
-    title: 'Company Formation',
-    description: 'Complete assistance in company registration, partnership formation, and regulatory compliance.',
+    title: 'Corporate and Other Laws',
+    // description: 'Complete assistance in company registration, partnership formation, and regulatory compliance.',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    features: ['Company Registration', 'Partnership Formation', 'LLP Setup', 'Legal Compliance'],
+    features: ['Incorporation of Companies & LLP','Statutory Due Diligence Reviews','FEMA and RBI Compliance on FDI','Section 8 Companies, Producer Companies','NGO’s and Electoral Trust','Societies'],
   },
   {
     id: 6,
     icon: CheckCircle,
-    title: 'Compliance Services',
-    description: 'ROC filings, annual returns, and complete regulatory compliance management for your business.',
+    title: 'Corporate Financing : Fund Raising',
+    // description: 'ROC filings, annual returns, and complete regulatory compliance management for your business.',
     image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
-    features: ['ROC Filings', 'Annual Returns', 'MCA Compliance', 'Regulatory Filing'],
+    features: ['Preparing company for fund raising','Advice on business plan and projections','Access to the right debt and equity providers','Integrate tax structuring','Project finance'],
+  },
+  {
+    id: 7,
+    icon: CheckCircle,
+    title: 'Corporate Financing : Valuation',
+    // description: 'ROC filings, annual returns, and complete regulatory compliance management for your business.',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=300&fit=crop',
+    features: ['Business','Regulatory','Intangible assets','IFRS'],
   },
 ];
 
@@ -62,7 +71,7 @@ export default function Services({ onNavigate }: ServicesProps) {
       <section className={styles.hero}>
         <div className={styles.container}>
           <h1 className={styles.title}>Our Services</h1>
-          <p className={styles.subtitle}>Comprehensive financial solutions tailored to your business needs</p>
+          {/* <p className={styles.subtitle}>Comprehensive financial solutions tailored to your business needs</p> */}
         </div>
       </section>
 
@@ -90,7 +99,7 @@ export default function Services({ onNavigate }: ServicesProps) {
                         </div>
                       ))}
                     </div>
-                    <button className={styles.learnMore}>Learn More →</button>
+                    {/* <button className={styles.learnMore}>Learn More →</button> */}
                   </div>
                 </div>
               );

@@ -4,6 +4,7 @@ import Header from '../shared/Header';
 import Footer from '../shared/Footer';
 import styles from './Landing.module.css';
 import { insertContact } from '../../utils/contactsApi';
+import { FlashMessage } from '../../FlashMessage';
 
 interface ApiBlogPost {
   id: number;
@@ -58,9 +59,8 @@ const SERVICES = [
 
 export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: LandingProps) {
   const [blogs, setBlogs] = useState<ApiBlogPost[]>([]);
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-  const [contactError, setContactError] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [flash, setFlash] = useState({ message: '', type: '' as 'add' | 'update' | 'delete' | 'error' | 'info' | '' });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -88,20 +88,19 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setContactError(null);
+    setFlash({ message: '', type: '' });
     setIsSubmittingContact(true);
     try {
       await insertContact({
         name: contactForm.name,
         email: contactForm.email,
-        subject: 'General Inquiry',
+        subject: contactForm.subject || 'General Inquiry',
         message: contactForm.message,
       });
-      setContactForm({ name: '', email: '', message: '' });
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      setContactForm({ name: '', email: '', subject: '', message: '' });
+      setFlash({ message: 'Thank you for contacting us! We will get back to you soon.', type: 'add' });
     } catch (error: any) {
-      setContactError(error?.message || 'Failed to send your message. Please try again.');
+      setFlash({ message: error?.message || 'Failed to send your message. Please try again.', type: 'error' });
     } finally {
       setIsSubmittingContact(false);
     }
@@ -109,6 +108,11 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
 
   return (
     <div className={styles.landingPage}>
+      <FlashMessage
+        message={flash.message}
+        type={flash.type}
+        onClose={() => setFlash({ message: '', type: '' })}
+      />
       <Header onLogin={onLogin} isLoggedIn={isLoggedIn} onLogout={onLogout} isLandingPage={true} onNavigate={onNavigate} />
 
       <section className={styles.hero}>
@@ -265,25 +269,16 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
                 </div>
                 <div className={styles.infoItem}>
                   <strong>Address:</strong>
-                  <p>SF-38, ANSAL FORTUNE ARCADE,<br/> Captain Vijyant Thapar Marg, K Block,<br /> Atta Market, Pocket E,<br /> Sector 18, Noida,<br /> Uttar Pradesh 201301</p>
+                  <p>SF-38, ANSAL FORTUNE ARCADE,<br/>K Block, Sector 18, Noida,<br /> Uttar Pradesh - 201301</p>
                 </div>
               </div>
             </div>
             <div>
-              {showSuccess && (
-                <div className="p-3 mb-4 text-center border border-green-200 rounded-lg bg-green-50">
-                  <p className="text-sm font-medium text-green-800">Message sent successfully!</p>
-                </div>
-              )}
-              {contactError && (
-                <div className="p-3 mb-4 text-sm text-center text-red-700 border border-red-200 rounded-lg bg-red-50">
-                  {contactError}
-                </div>
-              )}
               <form className={styles.contactForm} onSubmit={handleContactSubmit}>
                 <input
                   type="text"
-                  placeholder="Your name"
+                  name="name"
+                  placeholder="Your full name"
                   className={styles.formInput}
                   value={contactForm.name}
                   onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
@@ -291,13 +286,24 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
                 />
                 <input
                   type="email"
+                  name="email"
                   placeholder="your@email.com"
                   className={styles.formInput}
                   value={contactForm.email}
                   onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                   required
                 />
+                <input
+                  type="text"
+                  name="subject"
+                  placeholder="Subject"
+                  className={styles.formInput}
+                  value={contactForm.subject}
+                  onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                  required
+                />
                 <textarea
+                  name="message"
                   placeholder="How can we help you?"
                   rows={4}
                   className={styles.formTextarea}

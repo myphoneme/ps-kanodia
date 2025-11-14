@@ -36,10 +36,8 @@ export default function Footer() {
             <h5 className={styles.heading}>Address</h5>
             <ul className={styles.links}>
               <li>SF-38, ANSAL FORTUNE ARCADE,</li>
-              <li>Captain Vijyant Thapar Marg, K Block,</li>
-              <li>Atta Market, Pocket E,</li>
-              <li>Sector 18, Noida,</li>
-              <li>Uttar Pradesh 201301</li>
+              <li>K Block, Sector 18,</li>
+              <li>Noida, Uttar Pradesh - 201301</li>
             </ul>
           </div>
         </div>

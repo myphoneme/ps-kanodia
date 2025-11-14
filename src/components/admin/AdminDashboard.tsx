@@ -6,6 +6,7 @@ import { AuthUser } from '../../utils/auth';
 import BlogListWrapper from '../BlogList/BlogListWrapper';
 import CategoriesListWrapper from '../CategoriesList/CategoriesListWrapper';
 import CreateBlogWrapper from '../CreateBlog/CreateBlogWrapper';
+import { FlashMessage } from '../../FlashMessage';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -24,6 +25,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
   const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
   const [isUsersLoading, setIsUsersLoading] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
+  const [flash, setFlash] = useState<{ message: string; type: 'add' | 'update' | 'delete' | 'error' | 'info' | '' }>({ message: '', type: '' });
 
   useEffect(() => {
     loadData();
@@ -81,40 +83,99 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
     try {
       await deleteContact(id, authToken);
       await loadData();
-    } catch (e) {
+      setFlash({ message: 'Contact submission deleted successfully!', type: 'delete' });
+    } catch (e: any) {
       console.error('Failed to delete contact', e);
+      setFlash({ message: e?.message || 'Failed to delete contact submission', type: 'error' });
     }
   };
 
-  const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
-    if (!authToken) return;
-    setIsUsersLoading(true);
-    setUserError(null);
-    try {
-      await createUser(payload, authToken);
-      await loadData();
-    } catch (error: any) {
-      setUserError(error?.message || 'Failed to create user');
-      setIsUsersLoading(false);
-    }
-  };
+  // const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
+  //   if (!authToken) return;
+  //   setIsUsersLoading(true);
+  //   setUserError(null);
+  //   try {
+  //     await createUser(payload, authToken);
+  //     await loadData();
+  //     console.log("User created successfully!");
+  //     setFlash({ message: 'User created successfully!', type: 'add' });
+  //   } catch (error: any) {
+  //     setUserError(error?.message || 'Failed to create user');
+  //     setFlash({ message: error?.message || 'Failed to create user', type: 'error' });
+  //     setIsUsersLoading(false);
+  //   }
+  // };
+
+ const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
+  if (!authToken) return;
+
+  setIsUsersLoading(true);
+  setUserError(null);
+
+  try {
+    await createUser(payload, authToken);
+
+    // Show flash IMMEDIATELY
+    setFlash({ message: 'User created successfully!', type: 'add' });
+
+    // Then refresh data in background
+    await loadData();
+
+  } catch (error: any) {
+    const msg = error?.message || 'Failed to create user';
+    setUserError(msg);
+    setFlash({ message: msg, type: 'error' });
+  } finally {
+    setIsUsersLoading(false); // Always reset loading
+  }
+};
+  // const handleDeleteUser = async (id: string) => {
+  //   if (!authToken) return;
+  //   if (!confirm('Are you sure you want to delete this user?')) return;
+  //   setIsUsersLoading(true);
+  //   setUserError(null);
+  //   try {
+  //     await deleteUser(id, authToken);
+  //     await loadData();
+  //     setFlash({ message: 'User deleted successfully!', type: 'delete' });
+  //   } catch (error: any) {
+  //     setUserError(error?.message || 'Failed to delete user');
+  //     setFlash({ message: error?.message || 'Failed to delete user', type: 'error' });
+  //     setIsUsersLoading(false);
+  //   }
+  // };
 
   const handleDeleteUser = async (id: string) => {
-    if (!authToken) return;
-    if (!confirm('Are you sure you want to delete this user?')) return;
-    setIsUsersLoading(true);
-    setUserError(null);
-    try {
-      await deleteUser(id, authToken);
-      await loadData();
-    } catch (error: any) {
-      setUserError(error?.message || 'Failed to delete user');
-      setIsUsersLoading(false);
-    }
-  };
+  if (!authToken || !confirm('Are you sure you want to delete this user?')) return;
+
+  setIsUsersLoading(true);
+  setUserError(null);
+
+  try {
+    await deleteUser(id, authToken);
+
+    // Show flash IMMEDIATELY
+    setFlash({ message: 'User deleted successfully!', type: 'delete' });
+
+    // Then refresh data in background
+    await loadData();
+
+  } catch (error: any) {
+    const msg = error?.message || 'Failed to delete user';
+    setUserError(msg);
+    setFlash({ message: msg, type: 'error' });
+  } finally {
+    setIsUsersLoading(false); // Always reset loading
+  }
+};
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      <FlashMessage
+        message={flash.message}
+        type={flash.type}
+        onClose={() => setFlash({ message: '', type: '' })}
+      />
       {/* Sidebar */}
       <aside className="sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200">
         <div className="p-6">
@@ -257,6 +318,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
                 setActiveSection('viewBlog');
               }}
               onRefresh={loadData}
+              onFlash={(message, type) => setFlash({ message, type })}
             />
           )}
           {activeSection === 'createBlog' && (
@@ -533,7 +595,17 @@ interface ApiBlogPost {
   updated_at: string;
 }
 
-function BlogsSection({ onEdit, onView, onRefresh }: { onEdit: (id: string) => void; onView: (id: string) => void; onRefresh: () => void }) {
+function BlogsSection({
+  onEdit,
+  onView,
+  onRefresh,
+  onFlash
+}: {
+  onEdit: (id: string) => void;
+  onView: (id: string) => void;
+  onRefresh: () => void;
+  onFlash: (message: string, type: 'add' | 'update' | 'delete' | 'error' | 'info') => void;
+}) {
   const [blogs, setBlogs] = useState<ApiBlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -556,6 +628,7 @@ function BlogsSection({ onEdit, onView, onRefresh }: { onEdit: (id: string) => v
       }
     } catch (error) {
       console.error('Error fetching blogs:', error);
+      onFlash('Failed to load blogs', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -570,9 +643,13 @@ function BlogsSection({ onEdit, onView, onRefresh }: { onEdit: (id: string) => v
       if (response.ok) {
         setBlogs(blogs.filter(blog => blog.id !== id));
         onRefresh();
+        onFlash('Blog deleted successfully!', 'delete');
+      } else {
+        onFlash('Failed to delete blog', 'error');
       }
     } catch (error) {
       console.error('Error deleting blog:', error);
+      onFlash('An error occurred while deleting the blog', 'error');
     }
   };
 

@@ -8,7 +8,7 @@
               url('/uploads/static/bg1.jpg') center/cover no-repeat;
   background-attachment: fixed;
   color: white;
-  padding: 12rem 1.5rem 6rem;
+  padding: 8rem 1.5rem 6rem;
   text-align: center;
   margin-top: 3.5rem;
 }
@@ -24,7 +24,7 @@
 }
 
 .heroTitle {
-  font-size: clamp(2.5rem, 8vw, 3.5rem);
+  font-size: clamp(2rem, 8vw, 3.5rem);
   font-weight: bold;
   margin: 0 0 1.5rem 0;
   line-height: 1.2;

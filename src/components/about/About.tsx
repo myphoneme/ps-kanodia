@@ -51,7 +51,7 @@ export default function About() {
       <section className={styles.hero}>
         <div className={styles.container}>
           <h1 className={styles.title}>About P.S Kanodia & Co.</h1>
-          <p className={styles.subtitle}>Leading Chartered Accountants Serving Business Excellence</p>
+          {/* <p className={styles.subtitle}>Leading Chartered Accountants Serving Business Excellence</p> */}
         </div>
       </section>
 
