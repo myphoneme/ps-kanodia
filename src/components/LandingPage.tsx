@@ -106,7 +106,7 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
                   <div className={styles.statLabel}>Happy Clients</div>
                 </div>
                 <div className={styles.stat}>
-                  <div className={styles.statValue}>15+</div>
+                  <div className={styles.statValue}>25+</div>
                   <div className={styles.statLabel}>Years Experience</div>
                 </div>
                 <div className={styles.stat}>

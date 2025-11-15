@@ -50,13 +50,13 @@ export default function Header({ onLogin, isLoggedIn, onLogout, onNavigate }: He
 
           <div className={styles.authButtons}>
             {!isLoggedIn ? (
-              <button onClick={onLogin} className={styles.loginBtn}>
+              <a onClick={onLogin} className={styles.loginBtn}>
                 Admin Login
-              </button>
+              </a>
             ) : (
-              <button onClick={onLogout} className={styles.logoutBtn}>
+              <a onClick={onLogout} className={styles.logoutBtn}>
                 Logout
-              </button>
+              </a>
             )}
           </div>
         </div>

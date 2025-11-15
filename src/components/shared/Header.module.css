@@ -100,18 +100,19 @@
 }
 
 .loginBtn {
-  background-color:#2563eb;
-  color: white;
-  border: none;
+  /* background-color:#010204c8; */
+  color: rgba(5, 1, 1, 0.738);
+  /* border: none;
   padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 0.5rem; */
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  /* transition: background-color 0.3s ease; */
 }
 
 .loginBtn:hover {
-  background-color: #1d4ed8;
+  /* background-color: #1d4ed8; */
+  color :#091c44;
 }
 
 .logoutBtn {

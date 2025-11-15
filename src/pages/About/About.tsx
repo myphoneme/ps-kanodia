@@ -6,7 +6,7 @@ const TEAM_MEMBERS = [
     name: 'P.S Kanodia',
     role: 'Founder & Managing Partner',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
-    description: 'Senior CA with 20+ years of experience in taxation and audit',
+    description: 'Senior CA with 25+ years of experience in taxation and audit',
   },
   {
     id: 2,
@@ -33,7 +33,7 @@ const TEAM_MEMBERS = [
 
 const ACHIEVEMENTS = [
   { value: '500+', label: 'Happy Clients' },
-  { value: '15+', label: 'Years Experience' },
+  { value: '25+', label: 'Years Experience' },
   { value: '98%', label: 'Client Satisfaction' },
   { value: '50+', label: 'Team Members' },
 ];
@@ -41,7 +41,7 @@ const ACHIEVEMENTS = [
 const CERTIFICATIONS = [
   'Chartered Accountant (CA)',
   'GST Registration & Compliance',
-  'ISO 9001:2015 Certified',
+  'ISO 9001:2000 Certified',
   'NISM Registered',
 ];
 
@@ -61,7 +61,7 @@ export default function About() {
             <div className={styles.textContent}>
               <h2 className={styles.sectionTitle}>Our Story</h2>
               <p className={styles.paragraph}>
-                P.S Kanodia & Co. was established in 2010 with a vision to provide comprehensive and professional accounting, taxation, and financial advisory services to businesses across diverse industries. Our journey has been marked by consistent growth, client satisfaction, and a commitment to excellence.
+                P.S Kanodia & Co. was established in 2000 with a vision to provide comprehensive and professional accounting, taxation, and financial advisory services to businesses across diverse industries. Our journey has been marked by consistent growth, client satisfaction, and a commitment to excellence.
               </p>
               <p className={styles.paragraph}>
                 With a team of experienced chartered accountants and financial professionals, we have successfully served over 500 clients ranging from startups to established corporations. Our expertise spans across multiple sectors including manufacturing, IT, healthcare, retail, and services.
