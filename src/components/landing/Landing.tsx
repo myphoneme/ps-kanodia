@@ -1,7 +1,7 @@
 import { ChevronRight, FileText, Calculator, Shield, TrendingUp, Users, CheckCircle, Clock, Tag, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Header from '../shared/Header';
-import Footer from '../shared/Footer';
+// import Footer from '../shared/Footer';
 import styles from './Landing.module.css';
 import { insertContact } from '../../utils/contactsApi';
 import { FlashMessage } from '../../FlashMessage';
