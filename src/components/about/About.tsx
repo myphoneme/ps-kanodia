@@ -110,7 +110,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className={styles.certifications}>
+      {/* <section className={styles.certifications}>
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>Certifications & Credentials</h2>
           <div className={styles.certGrid}>
@@ -122,7 +122,7 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className={styles.mission}>
         <div className={styles.container}>

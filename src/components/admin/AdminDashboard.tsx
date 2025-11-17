@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2 } from 'lucide-react';
+import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2, Menu, X } from 'lucide-react';
 import { getContacts, deleteContact, ContactRecord } from '../../utils/contactsApi';
 import { getUsers, createUser, deleteUser, UserRecord } from '../../utils/usersApi';
 import { AuthUser } from '../../utils/auth';
@@ -26,6 +26,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
   const [isUsersLoading, setIsUsersLoading] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
   const [flash, setFlash] = useState<{ message: string; type: 'add' | 'update' | 'delete' | 'error' | 'info' | '' }>({ message: '', type: '' });
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -169,6 +170,11 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
   }
 };
 
+  const handleSidebarItemClick = (section: SectionType) => {
+    setActiveSection(section);
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <FlashMessage
@@ -176,8 +182,18 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
         type={flash.type}
         onClose={() => setFlash({ message: '', type: '' })}
       />
+
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200">
+      <aside className={`fixed lg:sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:transform-none ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
         <div className="p-6">
           <div className="flex items-center mb-8 space-x-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800">
@@ -194,34 +210,34 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
               icon={<Home className="w-5 h-5" />}
               label="Dashboard"
               active={activeSection === 'dashboard'}
-              onClick={() => setActiveSection('dashboard')}
+              onClick={() => handleSidebarItemClick('dashboard')}
             />
             <SidebarItem
               icon={<Users className="w-5 h-5" />}
               label="Users"
               count={users.length}
               active={activeSection === 'users'}
-              onClick={() => setActiveSection('users')}
+              onClick={() => handleSidebarItemClick('users')}
             />
             <SidebarItem
               icon={<FileText className="w-5 h-5" />}
               label="Blogs"
               count={totalBlogs}
               active={activeSection === 'blogs'}
-              onClick={() => setActiveSection('blogs')}
+              onClick={() => handleSidebarItemClick('blogs')}
             />
             <SidebarItem
               icon={<LayoutGrid className="w-5 h-5" />}
               label="Categories"
               active={activeSection === 'categories'}
-              onClick={() => setActiveSection('categories')}
+              onClick={() => handleSidebarItemClick('categories')}
             />
             <SidebarItem
               icon={<Mail className="w-5 h-5" />}
               label="Contact Forms"
               count={contacts.length}
               active={activeSection === 'contacts'}
-              onClick={() => setActiveSection('contacts')}
+              onClick={() => handleSidebarItemClick('contacts')}
             />
           </nav>
         </div>
@@ -249,10 +265,17 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
       {/* Main Content */}
       <div className="flex-1">
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-          <div className="px-8 py-6">
+          <div className="px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+              <button
+                className="p-2 mr-2 text-gray-600 transition-colors rounded-lg lg:hidden hover:bg-gray-100"
+                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
                   {activeSection === 'dashboard' && 'Dashboard Overview'}
                   {activeSection === 'users' && 'User Management'}
                   {activeSection === 'blogs' && 'Blog Management'}
@@ -262,7 +285,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
                   {activeSection === 'categories' && 'Category Management'}
                   {activeSection === 'contacts' && 'Contact Form Submissions'}
                 </h2>
-                <p className="mt-1 text-gray-600">
+                <p className="hidden mt-1 text-sm text-gray-600 sm:block lg:text-base">
                   {activeSection === 'dashboard' && 'Welcome to your admin dashboard'}
                   {activeSection === 'users' && 'Manage user accounts and permissions'}
                   {activeSection === 'blogs' && 'Create and manage blog posts'}
@@ -279,17 +302,18 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
                     setSelectedBlogId(null);
                     setActiveSection('createBlog');
                   }}
-                  className="flex items-center gap-2 px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg sm:px-4 hover:bg-blue-700"
                 >
-                  <Plus className="w-5 h-5" />
-                  Create New Blog
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Create New Blog</span>
+                  <span className="sm:hidden">New</span>
                 </button>
               )}
             </div>
           </div>
         </header>
 
-        <main className="p-8">
+        <main className="p-4 sm:p-6 lg:p-8">
           {activeSection === 'dashboard' && (
             <DashboardSection
               totalBlogs={totalBlogs}
@@ -975,10 +999,10 @@ function ContactsSection({ contacts, onDelete }: { contacts: ContactRecord[]; on
                   <p className="mb-1 text-xs text-gray-500">Email</p>
                   <p className="text-sm text-gray-900">{contact.email}</p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="mb-1 text-xs text-gray-500">Phone</p>
                   <p className="text-sm text-gray-900">{contact.phone || 'Not provided'}</p>
-                </div>
+                </div> */}
               </div>
               <div className="mb-4">
                 <p className="mb-1 text-xs text-gray-500">Subject</p>

@@ -93,11 +93,25 @@
   color: #2563eb;
 }
 
+.rightSection {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .authButtons {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
+
+@media (max-width: 767px) {
+  .authButtons {
+    display: none;
+  }
+}
+
+
 
 .loginBtn {
   /* background-color:#010204c8; */
@@ -152,4 +166,124 @@
 
 .header.transparent .loginBtn:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+.mobileMenuToggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #374151;
+  transition: color 0.3s ease;
+}
+
+.mobileMenuToggle:hover {
+  color: #2563eb;
+}
+
+.menuIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .mobileMenuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo {
+    gap: 0.5rem;
+  }
+
+  .logoText {
+    font-size: 1rem;
+  }
+
+  .logoSubtext {
+    font-size: 0.65rem;
+  }
+}
+
+.mobileMenu {
+  display: none;
+  flex-direction: column;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 767px) {
+  .mobileMenu {
+    display: flex;
+  }
+}
+
+.mobileNavLink {
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.mobileNavLink:hover {
+  color: #2563eb;
+  background: #f3f4f6;
+}
+
+
+/* Newly Added By ronik*/
+
+/* Better grouping of company name */
+.logoTextGroup {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+/* Mobile auth section inside dropdown */
+.mobileAuth {
+  margin-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 767px) {
+  .logo {
+    gap: 0.6rem;
+  }
+
+  .logoText {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .logoSubtext {
+    font-size: 0.65rem;
+  }
+
+  .logoIcon img {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+
+/* mobileAuth: hidden on desktop, shown only on small screens */
+.mobileAuth {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobileAuth {
+    display: block;
+  }
 }
