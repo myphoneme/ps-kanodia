@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2, Menu, X } from 'lucide-react';
+import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2, Menu, X, Edit2 } from 'lucide-react';
 import { getContacts, deleteContact, ContactRecord } from '../../utils/contactsApi';
-import { getUsers, createUser, deleteUser, UserRecord } from '../../utils/usersApi';
+import { getUsers, createUser, updateUser, deleteUser, UserRecord } from '../../utils/usersApi';
 import { AuthUser } from '../../utils/auth';
 import BlogListWrapper from '../BlogList/BlogListWrapper';
 import CategoriesListWrapper from '../CategoriesList/CategoriesListWrapper';
@@ -107,7 +107,30 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
   //   }
   // };
 
- const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
+// const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
+//   if (!authToken) return;
+
+//   setIsUsersLoading(true);
+//   setUserError(null);
+
+//   try {
+//     await createUser(payload, authToken);
+
+//     setFlash({ message: 'User created successfully!', type: 'add' });
+
+//     await loadData();
+
+//   } catch (error: any) {
+//     const msg = error?.message || 'Failed to create user';
+//     setUserError(msg);
+//     setFlash({ message: msg, type: 'error' });
+//   } finally {
+//     setIsUsersLoading(false);
+//   }
+// };
+
+
+const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
   if (!authToken) return;
 
   setIsUsersLoading(true);
@@ -115,19 +138,36 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
 
   try {
     await createUser(payload, authToken);
-
-    // Show flash IMMEDIATELY
     setFlash({ message: 'User created successfully!', type: 'add' });
-
-    // Then refresh data in background
-    await loadData();
-
+    await loadData(); // This runs in background
   } catch (error: any) {
     const msg = error?.message || 'Failed to create user';
     setUserError(msg);
     setFlash({ message: msg, type: 'error' });
   } finally {
-    setIsUsersLoading(false); // Always reset loading
+    setIsUsersLoading(false);
+  }
+};
+
+const handleUpdateUser = async (payload: { id: number; name: string; email: string; role: string; password?: string; }) => {
+  if (!authToken) return;
+
+  setIsUsersLoading(true);
+  setUserError(null);
+
+  try {
+    await updateUser(payload, authToken);
+
+    setFlash({ message: 'User updated successfully!', type: 'update' });
+
+    await loadData();
+
+  } catch (error: any) {
+    const msg = error?.message || 'Failed to update user';
+    setUserError(msg);
+    setFlash({ message: msg, type: 'error' });
+  } finally {
+    setIsUsersLoading(false);
   }
 };
   // const handleDeleteUser = async (id: string) => {
@@ -328,6 +368,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
               isLoading={isUsersLoading}
               error={userError}
               onCreate={handleCreateUser}
+              onUpdate={handleUpdateUser}
               onDelete={handleDeleteUser}
             />
           )}
@@ -431,7 +472,7 @@ function DashboardSection({
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
           <div key={index} className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
             <div className="flex items-center justify-between mb-4">
@@ -448,7 +489,37 @@ function DashboardSection({
             <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
           </div>
         ))}
+      </div> */}
+      
+      <div className="grid grid-cols-2 gap-4 mb-8 sm:gap-6 md:grid-cols-4">
+  {stats.map((stat, index) => (
+    <div
+      key={index}
+      className="flex flex-col justify-between p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow min-h-28 sm:min-h-32"
+    >
+      {/* Top: Icon + Number */}
+      <div className="flex items-start justify-between">
+        <div className={`p-2.5 rounded-lg ${
+          stat.color === 'blue' ? 'bg-blue-100 text-blue-600' :
+          stat.color === 'green' ? 'bg-green-100 text-green-600' :
+          stat.color === 'purple' ? 'bg-purple-100 text-purple-600' :
+          'bg-orange-100 text-orange-600'
+        }`}>
+          {stat.icon}
+        </div>
+        <span className="text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
+          {stat.value}
+        </span>
       </div>
+
+      {/* Bottom: Label */}
+      <p className="mt-3 text-xs font-medium text-gray-600 sm:text-sm line-clamp-2">
+        {stat.label}
+      </p>
+    </div>
+  ))}
+</div>
+
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
@@ -494,118 +565,235 @@ function UsersSection({
   isLoading,
   error,
   onCreate,
+  onUpdate,
   onDelete,
 }: {
   users: UserRecord[];
   isLoading: boolean;
   error: string | null;
   onCreate: (payload: { name: string; email: string; role: string; password: string }) => void;
+  onUpdate: (payload: { id: number; name: string; email: string; role: string; password?: string }) => void;
   onDelete: (id: string) => void;
 }) {
-  const [formData, setFormData] = useState({ name: '', email: '', role: 'admin', password: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ id: '', name: '', email: '', role: 'admin', password: '' });
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onCreate(formData);
-    setFormData({ name: '', email: '', role: 'admin', password: '' });
+  const openModal = (user?: UserRecord) => {
+    if (user) {
+      setFormData({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        password: '',
+      });
+      setIsEditing(true);
+    } else {
+      setFormData({ id: '', name: '', email: '', role: 'admin', password: '' });
+      setIsEditing(false);
+    }
+    setIsModalOpen(true);
   };
 
-  return (
-    <div className="p-6 space-y-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-      <div>
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Add New User</h3>
-        {error && <div className="px-4 py-3 mb-4 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50">{error}</div>}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium text-gray-700">Full Name</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="Enter full name"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="user@example.com"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium text-gray-700">Role</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              required
-            >
-              <option value="admin">Admin</option>
-              <option value="editor">Editor</option>
-              <option value="user">User</option>
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="Create password"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg sm:w-auto hover:bg-blue-700 disabled:opacity-60"
-            >
-              {isLoading ? 'Saving...' : 'Create User'}
-            </button>
-          </div>
-        </form>
-      </div>
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ id: '', name: '', email: '', role: 'admin', password: '' });
+    setIsEditing(false);
+  };
 
-      <div>
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Existing Users</h3>
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!formData.name.trim() || !formData.email.trim()) return;
+  if (!isEditing && !formData.password.trim()) return;
+
+  try {
+    // ❗Close modal immediately
+    closeModal();
+
+    if (isEditing) {
+      const payload: any = {
+        id: parseInt(formData.id, 10),
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        role: formData.role,
+      };
+
+      if (formData.password.trim()) {
+        payload.password = formData.password.trim();
+      }
+
+      // run async in background
+      onUpdate(payload);
+
+    } else {
+      // run async in background
+      onCreate({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        role: formData.role,
+        password: formData.password.trim(),
+      });
+    }
+
+  } catch (error) {
+    console.error("Failed to save user:", error);
+  }
+};
+
+
+  return (
+  
+    <div className="space-y-6">
+      {/* Main User List Card */}
+      <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+          <button
+            onClick={() => openModal()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add New User
+          </button>
+        </div>
+
+        {error && (
+          <div className="px-4 py-3 mb-4 text-sm text-red-700 border border-red-200 rounded-lg bg-red-50">
+            {error}
+          </div>
+        )}
+
         {isLoading ? (
-          <p className="text-sm text-gray-500">Loading users...</p>
+          <p className="text-sm text-gray-500 text-center py-8">Loading users...</p>
         ) : users.length === 0 ? (
-          <p className="text-sm text-gray-500">No users found.</p>
+          <p className="text-sm text-gray-500 text-center py-12">No users found.<br />Click "Add New User" to get started.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {users.map((user) => (
               <div
                 key={user.id}
-                className="flex flex-col gap-2 p-4 border border-gray-200 rounded-lg bg-gray-50 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                  <p className="mt-1 text-xs text-gray-400 capitalize">{user.role}</p>
+                  <p className="font-semibold text-gray-900">{user.name}</p>
+                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 capitalize">
+                    {user.role}
+                  </span>
                 </div>
-                <button
-                  onClick={() => onDelete(user.id)}
-                  className="self-start rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 sm:self-center"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-2 mt-3 sm:mt-0">
+                  <button
+                    onClick={() => openModal(user)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(user.id.toString())}
+                    className="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Modal - Add/Edit User */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="w-full max-w-md bg-white rounded-xl shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {isEditing ? 'Edit User' : 'Add New User'}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div>
+                <label className="block mb-1.5 text-sm font-medium text-gray-700">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1.5 text-sm font-medium text-gray-700">Email Address</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="john@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1.5 text-sm font-medium text-gray-700">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="editor">Editor</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block mb-1.5 text-sm font-medium text-gray-700">
+                  Password {isEditing && <span className="text-gray-500 font-normal">(Leave blank to keep current)</span>}
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required={!isEditing}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder={isEditing ? '••••••••' : 'Enter strong password'}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 py-3 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors"
+                >
+                  {isLoading ? 'Saving...' : isEditing ? 'Update User' : 'Create User'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="flex-1 py-3 font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-  );
-}
+  )};
 
 
 interface ApiBlogPost {
@@ -618,6 +806,7 @@ interface ApiBlogPost {
   created_at: string;
   updated_at: string;
 }
+ 
 
 function BlogsSection({
   onEdit,
@@ -957,15 +1146,6 @@ function ViewBlogSection({ blogId, onBack }: { blogId: string; onBack: () => voi
 function ContactsSection({ contacts, onDelete }: { contacts: ContactRecord[]; onDelete: (id: string) => void }) {
   if (contacts.length === 0) {
     return (
-      <div className="py-12 text-center">
-        <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <p className="text-lg text-gray-500">No contact submissions yet</p>
-      </div>
-    );
-  }
-
-  if (contacts.length === 0) {
-    return (
       <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="py-12 text-center">
           <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -978,54 +1158,58 @@ function ContactsSection({ contacts, onDelete }: { contacts: ContactRecord[]; on
   return (
     <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
       <div className="space-y-4">
-      {contacts.map((contact, index) => {
-        const contactId = contact.id || `contact-${index}`;
-        const createdAt = contact.created_at ? new Date(contact.created_at) : null;
-        return (
-        <div
-          key={contactId}
-          className="p-6 transition-shadow border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center mb-3 space-x-4">
-                <h3 className="text-lg font-semibold text-gray-900">{contact.name}</h3>
-                <span className="text-sm text-gray-500">
-                  {createdAt ? `${createdAt.toLocaleDateString()} at ${createdAt.toLocaleTimeString()}` : 'N/A'}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="mb-1 text-xs text-gray-500">Email</p>
-                  <p className="text-sm text-gray-900">{contact.email}</p>
+        {contacts.map((contact, index) => {
+          const contactId = contact.id || `contact-${index}`;
+          const createdAt = contact.created_at ? new Date(contact.created_at) : null;
+
+          return (
+            <div
+              key={contactId}
+              className="p-6 transition-shadow border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center mb-3 space-x-4">
+                    <h3 className="text-lg font-semibold text-gray-900">{contact.name}</h3>
+                    <span className="text-sm text-gray-500">
+                      {createdAt
+                        ? `${createdAt.toLocaleDateString()} at ${createdAt.toLocaleTimeString()}`
+                        : 'N/A'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2">
+                    <div>
+                      <p className="mb-1 text-xs text-gray-500">Email</p>
+                      <p className="text-sm text-gray-900">{contact.email}</p>
+                    </div>
+                   
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="mb-1 text-xs text-gray-500">Subject</p>
+                    <p className="text-sm font-medium text-gray-900">{contact.subject}</p>
+                  </div>
+
+                  <div>
+                    <p className="mb-1 text-xs text-gray-500">Message</p>
+                    <p className="text-sm leading-relaxed text-gray-700">{contact.message}</p>
+                  </div>
                 </div>
-                {/* <div>
-                  <p className="mb-1 text-xs text-gray-500">Phone</p>
-                  <p className="text-sm text-gray-900">{contact.phone || 'Not provided'}</p>
-                </div> */}
-              </div>
-              <div className="mb-4">
-                <p className="mb-1 text-xs text-gray-500">Subject</p>
-                <p className="text-sm font-medium text-gray-900">{contact.subject}</p>
-              </div>
-              <div>
-                <p className="mb-1 text-xs text-gray-500">Message</p>
-                <p className="text-sm leading-relaxed text-gray-700">{contact.message}</p>
+
+                {contact.id && (
+                  <button
+                    onClick={() => onDelete(contact.id as string)}
+                    className="p-2 ml-4 text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                    title="Delete submission"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
-            {contact.id && (
-              <button
-                onClick={() => onDelete(contact.id as string)}
-                className="p-2 ml-4 text-red-600 transition-colors rounded-lg hover:bg-red-50"
-                title="Delete submission"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
-        );
-      })}
+          );
+        })}
       </div>
     </div>
   );

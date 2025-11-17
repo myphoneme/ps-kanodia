@@ -13,6 +13,16 @@ export interface CreateUserPayload {
   password: string;
 }
 
+export interface UpdateUserPayload {
+  id: number;
+  name: string;
+  email: string;
+  designation?: string;
+  role: string;
+  password?: string;
+  status?: number;
+}
+
 const BASE_URL = 'https://capsk.co.in/api/users';
 
 const defaultHeaders = (token: string) => ({
@@ -50,6 +60,19 @@ export async function createUser(payload: CreateUserPayload, token: string): Pro
   const data = await response.json();
   if (!response.ok || data?.status !== 'success') {
     throw new Error(data?.message || 'Failed to create user');
+  }
+}
+
+export async function updateUser(payload: UpdateUserPayload, token: string): Promise<void> {
+  const response = await fetch(`${BASE_URL}/update.php`, {
+    method: 'POST',
+    headers: defaultHeaders(token),
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data?.status !== 'success') {
+    throw new Error(data?.message || 'Failed to update user');
   }
 }
 
