@@ -12,6 +12,7 @@ import BlogDetail from './components/BlogDetail/BlogDetail';
 import { GlobalProvider } from './components/Context';
 import LoginModal from './components/shared/LoginModal';
 import { AuthUser } from './utils/auth';
+import ScrollToTop from './components/shared/ScrollToTop';
 
 function App() {
   return (
@@ -82,6 +83,7 @@ function AppContent() {
 
   return (
     <>
+      <ScrollToTop/>
       <Routes>
         <Route
           path="/"

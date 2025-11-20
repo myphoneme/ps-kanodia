@@ -123,7 +123,8 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
               Trusted chartered accountants providing comprehensive accounting, taxation, audit, and advisory services with excellence and integrity.
             </p>
             <div className={styles.heroButtons}>
-              <button onClick={onLogin} className={styles.primaryBtn}>
+              {/* <button onClick={onLogin} className={styles.primaryBtn}> */}
+              <button onClick={() => onNavigate('services')} className={styles.primaryBtn}>
                 Get Started
                 <ChevronRight className={styles.btnIcon} />
               </button>

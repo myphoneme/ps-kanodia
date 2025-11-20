@@ -61,6 +61,10 @@ function CategoriesList() {
         method: 'GET',  // Using GET method as per your endpoint
       });
   
+      if (response.status === 404) {
+      return 0;
+      }
+
       if (!response.ok) {
         throw new Error(`Failed to fetch posts for category ID: ${categoryId}`);
       }

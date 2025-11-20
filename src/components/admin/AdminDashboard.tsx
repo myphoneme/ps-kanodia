@@ -4,7 +4,7 @@ import { getContacts, deleteContact, ContactRecord } from '../../utils/contactsA
 import { getUsers, createUser, updateUser, deleteUser, UserRecord } from '../../utils/usersApi';
 import { AuthUser } from '../../utils/auth';
 import BlogListWrapper from '../BlogList/BlogListWrapper';
-import CategoriesListWrapper from '../CategoriesList/CategoriesListWrapper';
+import CategoriesList from '../CategoriesList/CategoriesList';
 import CreateBlogWrapper from '../CreateBlog/CreateBlogWrapper';
 import { FlashMessage } from '../../FlashMessage';
 
@@ -411,7 +411,7 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
               onBack={() => setActiveSection('blogs')}
             />
           )}
-          {activeSection === 'categories' && <CategoriesListWrapper />}
+          {activeSection === 'categories' && <CategoriesList />}
           {activeSection === 'contacts' && <ContactsSection contacts={contacts} onDelete={handleDeleteContact} />}
         </main>
       </div>
