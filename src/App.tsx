@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import Landing from './components/landing/Landing';
 import AdminDashboard from './components/admin/AdminDashboard';
 import Header from './components/shared/Header';
@@ -32,9 +32,6 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
   const BlogDetailRoute = () => {
-    // lazy import of useParams to avoid top-level dependency if not needed elsewhere
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useParams } = require('react-router-dom') as typeof import('react-router-dom');
     const params = useParams();
     return <BlogDetail blogId={(params as any)?.id || ''} onNavigate={navigateTo} />;
   };
@@ -63,7 +60,7 @@ function AppContent() {
   const navigateTo = (page: string) => {
     if (page.startsWith('blogDetail:')) {
       const id = page.split(':')[1];
-      navigate(`/blog/${id}`);
+      navigate(`/details/${id}`);
     } else {
       if (page === 'landing') navigate('/');
       else navigate(`/${page}`);
@@ -165,13 +162,29 @@ function AppContent() {
                 isLandingPage={false}
                 onNavigate={navigateTo}
               />
-              <Blog isPrivate={isLoggedIn} isLoggedIn={isLoggedIn} onNavigate={navigateTo} />
+              <Blog isPrivate={isLoggedIn} isLoggedIn={isLoggedIn} />
               <Footer />
             </>
           }
         />
         <Route
           path="/blog/:id"
+          element={
+            <>
+              <Header
+                onLogin={handleLoginClick}
+                isLoggedIn={isLoggedIn}
+                onLogout={handleLogout}
+                isLandingPage={false}
+                onNavigate={navigateTo}
+              />
+              <BlogDetailRoute />
+              <Footer />
+            </>
+          }
+        />
+        <Route
+          path="/details/:id"
           element={
             <>
               <Header

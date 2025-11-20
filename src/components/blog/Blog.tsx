@@ -1,6 +1,7 @@
 import { Clock, Tag, User } from 'lucide-react';
 import styles from './Blog.module.css';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ApiBlogPost {
   id: number;
@@ -21,15 +22,20 @@ interface Category {
 interface BlogProps {
   isPrivate?: boolean;
   isLoggedIn?: boolean;
-  onNavigate?: (page: string) => void;
 }
 
-export default function Blog({ isPrivate = false, isLoggedIn = false, onNavigate }: BlogProps) {
+export default function Blog({ isPrivate = false, isLoggedIn = false }: BlogProps) {
   const [blogs, setBlogs] = useState<ApiBlogPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleReadMore = (blogId: number) => {
+    navigate(`/details/${blogId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -154,7 +160,7 @@ export default function Blog({ isPrivate = false, isLoggedIn = false, onNavigate
                         {blog.created_user.name}
                       </div>
                       <button
-                        onClick={() => onNavigate && onNavigate(`blogDetail:${blog.id}`)}
+                        onClick={() => handleReadMore(blog.id)}
                         className={styles.readMore}
                       >
                         Read More →

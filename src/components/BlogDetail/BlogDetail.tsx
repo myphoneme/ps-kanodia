@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, User, Clock, Tag, Facebook, Twitter, Linkedin, ArrowLeft } from 'lucide-react';
+import { Calendar, User, Clock, Tag, ArrowLeft } from 'lucide-react';
 import styles from './BlogDetail.module.css';
 
 interface ApiBlogPost {
@@ -67,117 +67,82 @@ export default function BlogDetail({ blogId, onNavigate }: BlogDetailProps) {
     );
   }
 
+  const publishedDate = new Date(post.created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
   return (
     <div className={styles.blogDetail}>
       <div className={styles.container}>
         <button onClick={() => onNavigate('blog')} className={styles.backButton}>
-          <ArrowLeft className={styles.backIcon} />
-          Back to All Articles
+          <ArrowLeft size={18} />
+          Back to Blogs
         </button>
 
-        <div className={styles.content}>
-          <div className={styles.mainColumn}>
-            <article className={styles.article}>
-              <div className={styles.meta}>
-                <span className={styles.category}>
-                  <Tag className={styles.metaIcon} />
-                  {post.category.category_name}
-                </span>
-                <span className={styles.date}>
-                  <Clock className={styles.metaIcon} />
-                  {new Date(post.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </span>
-                <span className={styles.author}>
-                  <User className={styles.metaIcon} />
-                  {post.created_user.name}
-                </span>
-              </div>
+        <article className={styles.articleCard}>
+          <img
+            src={`https://fastapi.phoneme.in/${post.image}`}
+            alt={post.title}
+            className={styles.articleImage}
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=1200&h=600&fit=crop';
+            }}
+          />
 
-              <h1 className={styles.title}>{post.title}</h1>
-
-              <div className={styles.featuredImage}>
-                <img
-                  src={`https://fastapi.phoneme.in/${post.image}`}
-                  alt={post.title}
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=1200&h=600&fit=crop';
-                  }}
-                />
-              </div>
-
-              <div
-                className={styles.articleContent}
-                dangerouslySetInnerHTML={{ __html: post.post }}
-              />
-
-              <div className={styles.shareSection}>
-                <p className={styles.shareTitle}>Share this article:</p>
-                <div className={styles.socialButtons}>
-                  <button className={`${styles.socialButton} ${styles.facebook}`}>
-                    <Facebook size={20} />
-                  </button>
-                  <button className={`${styles.socialButton} ${styles.twitter}`}>
-                    <Twitter size={20} />
-                  </button>
-                  <button className={`${styles.socialButton} ${styles.linkedin}`}>
-                    <Linkedin size={20} />
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.authorBox}>
-                <div className={styles.authorAvatar}>
-                  <User size={40} />
-                </div>
-                <div className={styles.authorInfo}>
-                  <h3 className={styles.authorName}>{post.created_user.name}</h3>
-                  <p className={styles.authorBio}>
-                    Professional content writer with expertise in finance and accounting topics.
-                  </p>
-                </div>
-              </div>
-            </article>
+          <div className={styles.metaRow}>
+            <span className={styles.category}>
+              <Tag size={16} />
+              {post.category.category_name}
+            </span>
+            <span className={styles.metaItem}>
+              <User size={16} />
+              {post.created_user.name}
+            </span>
+            <span className={styles.metaItem}>
+              <Clock size={16} />
+              {publishedDate}
+            </span>
           </div>
 
-          <aside className={styles.sidebar}>
-            <div className={styles.sidebarSection}>
-              <h3 className={styles.sidebarTitle}>Related Articles</h3>
-              {relatedPosts.length > 0 ? (
-                <div className={styles.relatedPosts}>
-                  {relatedPosts.map((relatedPost) => (
-                    <button
-                      key={relatedPost.id}
-                      onClick={() => onNavigate(`blogDetail:${relatedPost.id}`)}
-                      className={styles.relatedPost}
-                    >
-                      <img
-                        src={`https://fastapi.phoneme.in/${relatedPost.image}`}
-                        alt={relatedPost.title}
-                        className={styles.relatedImage}
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=200&h=200&fit=crop';
-                        }}
-                      />
-                      <div className={styles.relatedContent}>
-                        <h4 className={styles.relatedTitle}>{relatedPost.title}</h4>
-                        <span className={styles.relatedDate}>
-                          <Calendar size={14} />
-                          {new Date(relatedPost.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.noRelated}>No related articles found.</p>
-              )}
+          <h1 className={styles.title}>{post.title}</h1>
+
+          <div
+            className={styles.articleContent}
+            dangerouslySetInnerHTML={{ __html: post.post }}
+          />
+        </article>
+
+        <section className={styles.relatedSection}>
+          <h3>Related Articles</h3>
+          {relatedPosts.length > 0 ? (
+            <div className={styles.relatedList}>
+              {relatedPosts.map((relatedPost) => (
+                <button
+                  key={relatedPost.id}
+                  onClick={() => onNavigate(`blogDetail:${relatedPost.id}`)}
+                  className={styles.relatedCard}
+                >
+                  <img
+                    src={`https://fastapi.phoneme.in/${relatedPost.image}`}
+                    alt={relatedPost.title}
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=200&h=200&fit=crop';
+                    }}
+                  />
+                  <div>
+                    <p>{relatedPost.title}</p>
+                    <span>{new Date(relatedPost.created_at).toLocaleDateString()}</span>
+                  </div>
+                </button>
+              ))}
             </div>
-          </aside>
-        </div>
+          ) : (
+            <p className={styles.noRelated}>No related articles found.</p>
+          )}
+        </section>
       </div>
     </div>
   );
