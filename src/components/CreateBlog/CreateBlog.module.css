@@ -1,185 +1,289 @@
-.container {
-  max-width: 64rem; 
-  margin: 0 auto;
+/* CreateBlog.module.css - Final Clean & Professional Version */
+
+.wrapper {
   padding: 1.5rem;
-  /* background-color: #fff; */
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  /* border-top: 20px solid #1D4ED8; */
+  background: transparent;
+  min-height: auto;
+}
+
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.dark .container {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.header {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.dark .header {
+  background: #1e293b;
+  border-bottom-color: #334155;
 }
 
 .title {
-  font-size: 1.875rem;
-  font-weight: 700; 
-  color: #1F2937;
-  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.dark .title {
+  color: #f1f5f9;
 }
 
-.inputGroup {
-  margin-bottom: 0.5rem;
+.subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0.25rem 0 0;
+}
+
+.dark .subtitle {
+  color: #94a3b8;
+}
+
+.form {
+  padding: 1.5rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  margin-bottom: 1rem;
 }
 
 .label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 500;
-  /* color: #4B5563;  */
+  font-weight: 600;
+  color: #374151;
   margin-bottom: 0.5rem;
-} 
+}
 
-.input {
+.dark .label {
+  color: #e2e8f0;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.input,
+.select {
   width: 100%;
-  padding: 0.5rem 1rem;
-  border: 1px solid #D1D5DB;
-  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.2s;
+}
+
+.dark .input,
+.dark .select {
+  background: #334155;
+  border-color: #475569;
+  color: white;
+}
+
+.input:focus,
+.select:focus {
   outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.input:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 2px #3B82F6; 
+.editorContainer {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
 }
 
-.toolbar {
-  border: 1px solid #E5E7EB; 
-  border-radius: 0.5rem 0.5rem 0 0;
-  background-color: #F9FAFB; 
-  padding: 0.5rem;
+.dark .editorContainer {
+  border-color: #475569;
 }
 
-.toolbarButtons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-/* .toolbarButton {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: transparent;
-} */
-
-/* .toolbarButton:hover {
-  background-color: #E5E7EB; 
-} */
-
-/* .toolbarButtonActive {
-  background-color: #E5E7EB;
-}
- */
-/* .editorContainer {
-  border: 1px solid #E5E7EB;
-  border-radius: 0 0 0.5rem 0.5rem;
+.quill :global(.ql-editor) {
+  min-height: 320px;
+  max-height: 60vh;
+  font-size: 1rem;
   padding: 1rem;
-} */
-
-.editor {
-  font-family: serif;
-  font-size: 1.125rem;
-  max-width: none;
-  outline: none;
-  min-height: 250px;
+  line-height: 1.7;
 }
 
-.submitButton {
-  padding: 0.5rem 1.5rem;
-  background-color: #4177eb; 
-  color: #fff;
-  border-radius: 0.5rem;
-  transition: background-color 0.3s;
-  width: 150px;
+.quill :global(.ql-toolbar) {
+  border-bottom: 1px solid #d1d5db;
+  background: #f9fafb;
 }
 
-.submitButton:hover {
-  background-color: #1D4ED8; 
+.dark .quill :global(.ql-toolbar) {
+  background: #334155;
+  border-bottom-color: #475569;
 }
 
-.buttonContainer {
+.dark .quill :global(.ql-editor) {
+  background: #1e293b !important;
+  color: #f1f5f9;
+}
+
+.uploadBox {
+  position: relative;
+}
+
+.fileInput {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.uploadLabel {
+  display: block;
+  padding: 1.5rem;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+.dark .uploadLabel {
+  background: #334155;
+  border-color: #475569;
+}
+
+.uploadLabel:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.dark .uploadLabel:hover {
+  background: #6366f120;
+}
+
+.uploadText {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.dark .uploadText {
+  color: #94a3b8;
+}
+
+.actions {
   display: flex;
   justify-content: flex-end;
-}
-.select{
-  width: 100%;
-  padding: 10px;
-  outline: none;
-  border: 1px solid #f1f1f1;
-}
-.quillEditor :global(.ql-editor img) {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.quillEditor {
-  min-height: 300px;
-  /* color: #fff */
+.submitBtn {
+  padding: 0.75rem 1.5rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* This targets the actual text area inside the editor */
-/* .quillEditor :global(.ql-editor) {
-  min-height: 200px;
-  padding: 12px;
-  font-size: 1rem;
-  line-height: 1.5;
-  background-color: var(--editor-bg, white);
-  color: var(--editor-color, black);
-}
-.quillEditor :global(.ql-toolbar) {
-  background-color: var(--editor-toolbar-bg, #f3f3f3);
-  color: var(--editor-color, black);
-  border: 1px solid #ccc;
-} */
-
-.quillEditor :global(.ql-editor) {
-  min-height: 200px;
-  padding: 12px;
-  font-size: 1rem;
-  line-height: 1.5;
-  background-color: var(--editor-bg);
-  /* color: var(--editor-color); */
+.submitBtn:hover {
+  background: #4f46e5;
 }
 
-.quillEditor :global(.ql-toolbar) {
-  background-color: var(--editor-toolbar-bg);
-  color: var(--editor-color);
-  border: 1px solid #ccc;
+/* Back button in header */
+.header button {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
 }
 
-.quillEditor :global(.ql-toolbar button),
-.quillEditor :global(.ql-toolbar .ql-picker-label),
-.quillEditor :global(.ql-toolbar .ql-picker-item) {
-  /* color: var(--editor-color); */
-  fill: var(--editor-color);
+.header button:hover {
+  text-decoration: underline;
 }
 
-
-/* Make toolbar icons white in dark mode */
-.quillEditor :global(.ql-toolbar button svg),
-.quillEditor :global(.ql-toolbar .ql-picker-label),
-.quillEditor :global(.ql-toolbar .ql-picker-item) {
-  color: var(--editor-color);
-  fill: var(--editor-color);
+/* Current Image Info - Clickable Filename (Best Solution) */
+.currentImageInfo,
+.newImageInfo {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  border-left: 4px solid #0ea5e9;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-/* Optional: white border focus/hover for better visibility */
-.quillEditor :global(.ql-toolbar button:hover),
-.quillEditor :global(.ql-toolbar .ql-picker-label:hover),
-.quillEditor :global(.ql-toolbar .ql-picker-item:hover) {
-  background-color: rgba(255, 255, 255, 0.1);
+.dark .currentImageInfo,
+.dark .newImageInfo {
+  background: #0c4a6b;
+  border-left-color: #38bdf8;
 }
 
-.quillEditor :global(.ql-picker-options) {
-  background-color: var(--editor-toolbar-bg);
-  border: 1px solid #444;
-}
-.ql-snow.ql-toolbar button{
-  background-color: #fff;
+.currentLabel,
+.newLabel {
+  font-weight: 600;
+  color: #0369a1;
 }
 
+.dark .currentLabel,
+.dark .newLabel {
+  color: #7dd3fc;
+}
+
+.imageLink {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.imageLink:hover {
+  color: #1d4ed8;
+}
+
+.changeHint {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.dark .changeHint {
+  color: #94a3b8;
+}
+
+.newImageInfo strong {
+  color: #10b981;
+  font-weight: 600;
+}

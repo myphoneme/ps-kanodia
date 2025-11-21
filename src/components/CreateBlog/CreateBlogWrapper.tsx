@@ -1,10 +1,19 @@
-import { BrowserRouter } from 'react-router-dom';
+// src/components/CreateBlog/CreateBlogWrapper.tsx
+
 import CreateBlog from './CreateBlog';
 
-export default function CreateBlogWrapper() {
+interface CreateBlogWrapperProps {
+  blogId?: string;
+  onBack: () => void;
+  onSuccess: () => void;
+}
+
+export default function CreateBlogWrapper({ blogId, onBack, onSuccess }: CreateBlogWrapperProps) {
   return (
-    <BrowserRouter>
-      <CreateBlog />
-    </BrowserRouter>
+    <CreateBlog
+      id={blogId}
+      onBack={onBack}
+      onSuccess={onSuccess}
+    />
   );
 }

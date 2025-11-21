@@ -3,9 +3,8 @@ import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Tras
 import { getContacts, deleteContact, ContactRecord } from '../../utils/contactsApi';
 import { getUsers, createUser, updateUser, deleteUser, UserRecord } from '../../utils/usersApi';
 import { AuthUser } from '../../utils/auth';
-import BlogListWrapper from '../BlogList/BlogListWrapper';
 import CategoriesList from '../CategoriesList/CategoriesList';
-import CreateBlogWrapper from '../CreateBlog/CreateBlogWrapper';
+import CreateBlogWrapper from '../CreateBlog/CreateBlogWrapper'; // Your real editor
 import { FlashMessage } from '../../FlashMessage';
 
 interface AdminDashboardProps {
@@ -30,10 +29,10 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
 
   useEffect(() => {
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authToken]);
 
   const loadData = async () => {
+    // Contacts
     try {
       const remote = await getContacts(authToken);
       setContacts(remote);
@@ -42,173 +41,90 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
       setContacts([]);
     }
 
+    // Users
     if (authToken) {
       setIsUsersLoading(true);
-      setUserError(null);
       try {
         const userList = await getUsers(authToken);
         setUsers(userList);
       } catch (error: any) {
-        console.error('Error fetching users', error);
         setUserError(error?.message || 'Failed to fetch users');
       } finally {
         setIsUsersLoading(false);
       }
-    } else {
-      setUsers([]);
     }
 
+    // Blogs count
     try {
-      const blogsResponse = await fetch('https://fastapi.phoneme.in/posts');
-      if (blogsResponse.ok) {
-        const blogsData = await blogsResponse.json();
-        setTotalBlogs(blogsData.length);
+      const res = await fetch('https://fastapi.phoneme.in/posts');
+      if (res.ok) {
+        const data = await res.json();
+        setTotalBlogs(data.length);
       }
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-    }
+    } catch (err) { console.error(err); }
 
+    // Categories count
     try {
-      const categoriesResponse = await fetch('https://fastapi.phoneme.in/categories');
-      if (categoriesResponse.ok) {
-        const categoriesData = await categoriesResponse.json();
-        setTotalCategories(categoriesData.length);
+      const res = await fetch('https://fastapi.phoneme.in/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setTotalCategories(data.length);
       }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleDeleteContact = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this contact submission?')) return;
+    if (!confirm('Delete this contact submission?')) return;
     try {
       await deleteContact(id, authToken);
       await loadData();
-      setFlash({ message: 'Contact submission deleted successfully!', type: 'delete' });
+      setFlash({ message: 'Deleted successfully!', type: 'delete' });
     } catch (e: any) {
-      console.error('Failed to delete contact', e);
-      setFlash({ message: e?.message || 'Failed to delete contact submission', type: 'error' });
+      setFlash({ message: e?.message || 'Delete failed', type: 'error' });
     }
   };
 
-  // const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
-  //   if (!authToken) return;
-  //   setIsUsersLoading(true);
-  //   setUserError(null);
-  //   try {
-  //     await createUser(payload, authToken);
-  //     await loadData();
-  //     console.log("User created successfully!");
-  //     setFlash({ message: 'User created successfully!', type: 'add' });
-  //   } catch (error: any) {
-  //     setUserError(error?.message || 'Failed to create user');
-  //     setFlash({ message: error?.message || 'Failed to create user', type: 'error' });
-  //     setIsUsersLoading(false);
-  //   }
-  // };
+  const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
+    if (!authToken) return;
+    setIsUsersLoading(true);
+    try {
+      await createUser(payload, authToken);
+      setFlash({ message: 'User created!', type: 'add' });
+      await loadData();
+    } catch (error: any) {
+      setFlash({ message: error?.message || 'Failed to create user', type: 'error' });
+    } finally {
+      setIsUsersLoading(false);
+    }
+  };
 
-// const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
-//   if (!authToken) return;
-
-//   setIsUsersLoading(true);
-//   setUserError(null);
-
-//   try {
-//     await createUser(payload, authToken);
-
-//     setFlash({ message: 'User created successfully!', type: 'add' });
-
-//     await loadData();
-
-//   } catch (error: any) {
-//     const msg = error?.message || 'Failed to create user';
-//     setUserError(msg);
-//     setFlash({ message: msg, type: 'error' });
-//   } finally {
-//     setIsUsersLoading(false);
-//   }
-// };
-
-
-const handleCreateUser = async (payload: { name: string; email: string; role: string; password: string }) => {
-  if (!authToken) return;
-
-  setIsUsersLoading(true);
-  setUserError(null);
-
-  try {
-    await createUser(payload, authToken);
-    setFlash({ message: 'User created successfully!', type: 'add' });
-    await loadData(); // This runs in background
-  } catch (error: any) {
-    const msg = error?.message || 'Failed to create user';
-    setUserError(msg);
-    setFlash({ message: msg, type: 'error' });
-  } finally {
-    setIsUsersLoading(false);
-  }
-};
-
-const handleUpdateUser = async (payload: { id: number; name: string; email: string; role: string; password?: string; }) => {
-  if (!authToken) return;
-
-  setIsUsersLoading(true);
-  setUserError(null);
-
-  try {
-    await updateUser(payload, authToken);
-
-    setFlash({ message: 'User updated successfully!', type: 'update' });
-
-    await loadData();
-
-  } catch (error: any) {
-    const msg = error?.message || 'Failed to update user';
-    setUserError(msg);
-    setFlash({ message: msg, type: 'error' });
-  } finally {
-    setIsUsersLoading(false);
-  }
-};
-  // const handleDeleteUser = async (id: string) => {
-  //   if (!authToken) return;
-  //   if (!confirm('Are you sure you want to delete this user?')) return;
-  //   setIsUsersLoading(true);
-  //   setUserError(null);
-  //   try {
-  //     await deleteUser(id, authToken);
-  //     await loadData();
-  //     setFlash({ message: 'User deleted successfully!', type: 'delete' });
-  //   } catch (error: any) {
-  //     setUserError(error?.message || 'Failed to delete user');
-  //     setFlash({ message: error?.message || 'Failed to delete user', type: 'error' });
-  //     setIsUsersLoading(false);
-  //   }
-  // };
+  const handleUpdateUser = async (payload: { id: number; name: string; email: string; role: string; password?: string }) => {
+    if (!authToken) return;
+    setIsUsersLoading(true);
+    try {
+      await updateUser(payload, authToken);
+      setFlash({ message: 'User updated!', type: 'update' });
+      await loadData();
+    } catch (error: any) {
+      setFlash({ message: error?.message || 'Failed to update user', type: 'error' });
+    } finally {
+      setIsUsersLoading(false);
+    }
+  };
 
   const handleDeleteUser = async (id: string) => {
-  if (!authToken || !confirm('Are you sure you want to delete this user?')) return;
-
-  setIsUsersLoading(true);
-  setUserError(null);
-
-  try {
-    await deleteUser(id, authToken);
-
-    // Show flash IMMEDIATELY
-    setFlash({ message: 'User deleted successfully!', type: 'delete' });
-
-    // Then refresh data in background
-    await loadData();
-
-  } catch (error: any) {
-    const msg = error?.message || 'Failed to delete user';
-    setUserError(msg);
-    setFlash({ message: msg, type: 'error' });
-  } finally {
-    setIsUsersLoading(false); // Always reset loading
-  }
-};
+    if (!authToken || !confirm('Delete this user permanently?')) return;
+    setIsUsersLoading(true);
+    try {
+      await deleteUser(id, authToken);
+      setFlash({ message: 'User deleted!', type: 'delete' });
+      await loadData();
+    } catch (error: any) {
+      setFlash({ message: error?.message || 'Failed to delete user', type: 'error' });
+    } finally {
+      setIsUsersLoading(false);
+    }
+  };
 
   const handleSidebarItemClick = (section: SectionType) => {
     setActiveSection(section);
@@ -217,23 +133,15 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <FlashMessage
-        message={flash.message}
-        type={flash.type}
-        onClose={() => setFlash({ message: '', type: '' })}
-      />
+      <FlashMessage message={flash.message} type={flash.type} onClose={() => setFlash({ message: '', type: '' })} />
 
+      {/* Mobile overlay */}
       {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" onClick={() => setIsMobileSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:transform-none ${
-        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+      <aside className={`fixed lg:sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:transform-none ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6">
           <div className="flex items-center mb-8 space-x-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800">
@@ -246,148 +154,71 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
           </div>
 
           <nav className="space-y-1">
-            <SidebarItem
-              icon={<Home className="w-5 h-5" />}
-              label="Dashboard"
-              active={activeSection === 'dashboard'}
-              onClick={() => handleSidebarItemClick('dashboard')}
-            />
-            <SidebarItem
-              icon={<Users className="w-5 h-5" />}
-              label="Users"
-              count={users.length}
-              active={activeSection === 'users'}
-              onClick={() => handleSidebarItemClick('users')}
-            />
-            <SidebarItem
-              icon={<FileText className="w-5 h-5" />}
-              label="Blogs"
-              count={totalBlogs}
-              active={activeSection === 'blogs'}
-              onClick={() => handleSidebarItemClick('blogs')}
-            />
-            <SidebarItem
-              icon={<LayoutGrid className="w-5 h-5" />}
-              label="Categories"
-              active={activeSection === 'categories'}
-              onClick={() => handleSidebarItemClick('categories')}
-            />
-            <SidebarItem
-              icon={<Mail className="w-5 h-5" />}
-              label="Contact Forms"
-              count={contacts.length}
-              active={activeSection === 'contacts'}
-              onClick={() => handleSidebarItemClick('contacts')}
-            />
+            <SidebarItem icon={<Home className="w-5 h-5" />} label="Dashboard" active={activeSection === 'dashboard'} onClick={() => handleSidebarItemClick('dashboard')} />
+            <SidebarItem icon={<Users className="w-5 h-5" />} label="Users" count={users.length} active={activeSection === 'users'} onClick={() => handleSidebarItemClick('users')} />
+            <SidebarItem icon={<FileText className="w-5 h-5" />} label="Blogs" count={totalBlogs} active={activeSection === 'blogs'} onClick={() => handleSidebarItemClick('blogs')} />
+            <SidebarItem icon={<LayoutGrid className="w-5 h-5" />} label="Categories" active={activeSection === 'categories'} onClick={() => handleSidebarItemClick('categories')} />
+            <SidebarItem icon={<Mail className="w-5 h-5" />} label="Contact Forms" count={contacts.length} active={activeSection === 'contacts'} onClick={() => handleSidebarItemClick('contacts')} />
           </nav>
         </div>
 
         <div className="absolute bottom-0 w-64 p-6 border-t border-gray-200">
           <div className="flex items-center mb-3 space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
               <Users className="w-5 h-5 text-gray-600" />
             </div>
-            <div className="flex-1">
+            <div>
               <p className="text-sm font-semibold text-gray-900">{currentUser?.name || 'Administrator'}</p>
-              <p className="text-xs text-gray-600">{currentUser ? `${currentUser.role}` : 'admin@pskanodia.com'}</p>
+              <p className="text-xs text-gray-600">{currentUser?.role || 'admin@pskanodia.com'}</p>
             </div>
           </div>
-          <button
-            onClick={onLogout}
-            className="flex items-center justify-center w-full px-4 py-2 space-x-2 font-medium text-red-600 transition-colors rounded-lg bg-red-50 hover:bg-red-100"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
+          <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
+            <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Area */}
       <div className="flex-1">
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-          <div className="px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <button
-                className="p-2 mr-2 text-gray-600 transition-colors rounded-lg lg:hidden hover:bg-gray-100"
-                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
-                  {activeSection === 'dashboard' && 'Dashboard Overview'}
-                  {activeSection === 'users' && 'User Management'}
-                  {activeSection === 'blogs' && 'Blog Management'}
-                  {activeSection === 'createBlog' && 'Create New Blog'}
-                  {activeSection === 'editBlog' && 'Edit Blog'}
-                  {activeSection === 'viewBlog' && 'View Blog'}
-                  {activeSection === 'categories' && 'Category Management'}
-                  {activeSection === 'contacts' && 'Contact Form Submissions'}
-                </h2>
-                <p className="hidden mt-1 text-sm text-gray-600 sm:block lg:text-base">
-                  {activeSection === 'dashboard' && 'Welcome to your admin dashboard'}
-                  {activeSection === 'users' && 'Manage user accounts and permissions'}
-                  {activeSection === 'blogs' && 'Create and manage blog posts'}
-                  {activeSection === 'createBlog' && 'Write and publish a new blog post'}
-                  {activeSection === 'editBlog' && 'Update your blog post'}
-                  {activeSection === 'viewBlog' && 'Read the full blog post'}
-                  {activeSection === 'categories' && 'Organize content with categories'}
-                  {activeSection === 'contacts' && 'View and respond to contact inquiries'}
-                </p>
-              </div>
-              {activeSection === 'blogs' && (
-                <button
-                  onClick={() => {
-                    setSelectedBlogId(null);
-                    setActiveSection('createBlog');
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg sm:px-4 hover:bg-blue-700"
-                >
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">Create New Blog</span>
-                  <span className="sm:hidden">New</span>
-                </button>
-              )}
+          <div className="px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <button className="p-2 lg:hidden" onClick={() => setIsMobileSidebarOpen(true)}>
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+                {activeSection === 'dashboard' && 'Dashboard Overview'}
+                {activeSection === 'users' && 'User Management'}
+                {activeSection === 'blogs' && 'Blog Management'}
+                {activeSection === 'createBlog' && 'Create New Blog'}
+                {activeSection === 'editBlog' && 'Edit Blog'}
+                {activeSection === 'viewBlog' && 'View Blog'}
+                {activeSection === 'categories' && 'Category Management'}
+                {activeSection === 'contacts' && 'Contact Form Submissions'}
+              </h2>
             </div>
+            {activeSection === 'blogs' && (
+              <button
+                onClick={() => {
+                  setSelectedBlogId(null);
+                  setActiveSection('createBlog');
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Plus className="w-5 h-5" /> Create New Blog
+              </button>
+            )}
           </div>
         </header>
 
         <main className="p-4 sm:p-6 lg:p-8">
-          {activeSection === 'dashboard' && (
-            <DashboardSection
-              totalBlogs={totalBlogs}
-              totalCategories={totalCategories}
-              contacts={contacts}
-              totalUsers={users.length}
-            />
-          )}
-          {activeSection === 'users' && (
-            <UsersSection
-              users={users}
-              isLoading={isUsersLoading}
-              error={userError}
-              onCreate={handleCreateUser}
-              onUpdate={handleUpdateUser}
-              onDelete={handleDeleteUser}
-            />
-          )}
-          {activeSection === 'blogs' && (
-            <BlogsSection
-              onEdit={(id) => {
-                setSelectedBlogId(id);
-                setActiveSection('editBlog');
-              }}
-              onView={(id) => {
-                setSelectedBlogId(id);
-                setActiveSection('viewBlog');
-              }}
-              onRefresh={loadData}
-              onFlash={(message, type) => setFlash({ message, type })}
-            />
-          )}
+          {activeSection === 'dashboard' && <DashboardSection totalBlogs={totalBlogs} totalCategories={totalCategories} contacts={contacts} totalUsers={users.length} />}
+          {activeSection === 'users' && <UsersSection users={users} isLoading={isUsersLoading} error={userError} onCreate={handleCreateUser} onUpdate={handleUpdateUser} onDelete={handleDeleteUser} />}
+          {activeSection === 'blogs' && <BlogsSection onEdit={(id) => { setSelectedBlogId(id); setActiveSection('editBlog'); }} onView={(id) => { setSelectedBlogId(id); setActiveSection('viewBlog'); }} onRefresh={loadData} onFlash={(msg, type) => setFlash({ message: msg, type })} />}
+          
+          {/* REAL CREATE / EDIT BLOG USING YOUR BEAUTIFUL COMPONENT */}
           {activeSection === 'createBlog' && (
-            <CreateBlogSection
+            <CreateBlogWrapper
               onBack={() => setActiveSection('blogs')}
               onSuccess={() => {
                 loadData();
@@ -395,8 +226,9 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
               }}
             />
           )}
+
           {activeSection === 'editBlog' && selectedBlogId && (
-            <CreateBlogSection
+            <CreateBlogWrapper
               blogId={selectedBlogId}
               onBack={() => setActiveSection('blogs')}
               onSuccess={() => {
@@ -405,12 +237,8 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
               }}
             />
           )}
-          {activeSection === 'viewBlog' && selectedBlogId && (
-            <ViewBlogSection
-              blogId={selectedBlogId}
-              onBack={() => setActiveSection('blogs')}
-            />
-          )}
+
+          {activeSection === 'viewBlog' && selectedBlogId && <ViewBlogSection blogId={selectedBlogId} onBack={() => setActiveSection('blogs')} />}
           {activeSection === 'categories' && <CategoriesList />}
           {activeSection === 'contacts' && <ContactsSection contacts={contacts} onDelete={handleDeleteContact} />}
         </main>
@@ -418,6 +246,8 @@ const handleUpdateUser = async (payload: { id: number; name: string; email: stri
     </div>
   );
 }
+
+
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -1214,5 +1044,3 @@ function ContactsSection({ contacts, onDelete }: { contacts: ContactRecord[]; on
     </div>
   );
 }
-
-
