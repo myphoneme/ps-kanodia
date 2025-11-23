@@ -111,7 +111,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <About />
@@ -127,7 +127,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <Services />
@@ -143,7 +143,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <Contact />
@@ -159,7 +159,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <Blog isPrivate={isLoggedIn} isLoggedIn={isLoggedIn} />
@@ -175,7 +175,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <BlogDetailRoute />
@@ -191,7 +191,7 @@ function AppContent() {
                 onLogin={handleLoginClick}
                 isLoggedIn={isLoggedIn}
                 onLogout={handleLogout}
-                isLandingPage={false}
+                // isLandingPage={false}
                 onNavigate={navigateTo}
               />
               <BlogDetailRoute />
