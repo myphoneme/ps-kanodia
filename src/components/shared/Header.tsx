@@ -59,6 +59,7 @@ export default function Header({ onLogin, isLoggedIn, onLogout, onNavigate }: He
             <Link to="/about" className={styles.navLink}>About</Link>
             <Link to="/contact" className={styles.navLink}>Contact</Link>
             <Link to="/blog" className={styles.navLink}>Blog</Link>
+             <Link to="/task" className={styles.navLink}>Task-Management</Link>
           </div>
 
           <div className={styles.rightSection}>
