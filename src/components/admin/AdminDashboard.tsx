@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2, Menu, X, Edit2 } from 'lucide-react';
+import { Calculator, LogOut, Mail, FileText, Users, LayoutGrid, Home, Plus, Trash2, Menu, X, Edit2, User, Clock } from 'lucide-react';
 import { getContacts, deleteContact, ContactRecord } from '../../utils/contactsApi';
 import { getUsers, createUser, updateUser, deleteUser, UserRecord } from '../../utils/usersApi';
 import { AuthUser } from '../../utils/auth';
 import CategoriesList from '../CategoriesList/CategoriesList';
 import CreateBlogWrapper from '../CreateBlog/CreateBlogWrapper'; // Your real editor
 import { FlashMessage } from '../../FlashMessage';
+import { API_ENDPOINTS } from '../../utils/config';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -32,6 +33,8 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
   }, [authToken]);
 
   const loadData = async () => {
+    if (!authToken) return;
+
     // Contacts
     try {
       const remote = await getContacts(authToken);
@@ -56,7 +59,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
 
     // Blogs count
     try {
-      const res = await fetch('https://fastapi.phoneme.in/posts');
+      const res = await fetch(API_ENDPOINTS.blogs.get);
       if (res.ok) {
         const data = await res.json();
         setTotalBlogs(data.length);
@@ -65,7 +68,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
 
     // Categories count
     try {
-      const res = await fetch('https://fastapi.phoneme.in/categories');
+      const res = await fetch(API_ENDPOINTS.categories.get);
       if (res.ok) {
         const data = await res.json();
         setTotalCategories(data.length);
@@ -141,8 +144,8 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 w-64 min-h-screen bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:transform-none ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-6">
+      <aside className={`fixed lg:sticky top-0 w-64 h-screen bg-white border-r border-gray-200 z-50 flex flex-col transform transition-transform duration-300 lg:transform-none ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="p-6 flex-1 overflow-y-auto">
           <div className="flex items-center mb-8 space-x-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800">
               <Calculator className="w-6 h-6 text-white" />
@@ -162,17 +165,17 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
           </nav>
         </div>
 
-        <div className="absolute bottom-0 w-64 p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-200 bg-white">
           <div className="flex items-center mb-3 space-x-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-gray-600" />
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
+              <Users className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900">{currentUser?.name || 'Administrator'}</p>
-              <p className="text-xs text-gray-600">{currentUser?.role || 'admin@pskanodia.com'}</p>
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold text-gray-900 truncate">{currentUser?.name || 'Administrator'}</p>
+              <p className="text-xs text-gray-600 truncate">{currentUser?.role || 'admin@pskanodia.com'}</p>
             </div>
           </div>
-          <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
+          <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
             <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
@@ -214,7 +217,7 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
         <main className="p-4 sm:p-6 lg:p-8">
           {activeSection === 'dashboard' && <DashboardSection totalBlogs={totalBlogs} totalCategories={totalCategories} contacts={contacts} totalUsers={users.length} />}
           {activeSection === 'users' && <UsersSection users={users} isLoading={isUsersLoading} error={userError} onCreate={handleCreateUser} onUpdate={handleUpdateUser} onDelete={handleDeleteUser} />}
-          {activeSection === 'blogs' && <BlogsSection onEdit={(id) => { setSelectedBlogId(id); setActiveSection('editBlog'); }} onView={(id) => { setSelectedBlogId(id); setActiveSection('viewBlog'); }} onRefresh={loadData} onFlash={(msg, type) => setFlash({ message: msg, type })} />}
+          {activeSection === 'blogs' && <BlogsSection authToken={authToken} onEdit={(id) => { setSelectedBlogId(id); setActiveSection('editBlog'); }} onView={(id) => { setSelectedBlogId(id); setActiveSection('viewBlog'); }} onRefresh={loadData} onFlash={(msg, type) => setFlash({ message: msg, type })} />}
           
           {/* REAL CREATE / EDIT BLOG USING YOUR BEAUTIFUL COMPONENT */}
           {activeSection === 'createBlog' && (
@@ -224,6 +227,8 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
                 loadData();
                 setActiveSection('blogs');
               }}
+              authToken={authToken}
+              currentUser={currentUser}
             />
           )}
 
@@ -235,11 +240,13 @@ export default function AdminDashboard({ onLogout, authToken, currentUser }: Adm
                 loadData();
                 setActiveSection('blogs');
               }}
+              authToken={authToken}
+              currentUser={currentUser}
             />
           )}
 
           {activeSection === 'viewBlog' && selectedBlogId && <ViewBlogSection blogId={selectedBlogId} onBack={() => setActiveSection('blogs')} />}
-          {activeSection === 'categories' && <CategoriesList />}
+          {activeSection === 'categories' && <CategoriesList authToken={authToken} />}
           {activeSection === 'contacts' && <ContactsSection contacts={contacts} onDelete={handleDeleteContact} />}
         </main>
       </div>
@@ -642,32 +649,51 @@ function BlogsSection({
   onEdit,
   onView,
   onRefresh,
-  onFlash
+  onFlash,
+  authToken
 }: {
   onEdit: (id: string) => void;
   onView: (id: string) => void;
   onRefresh: () => void;
   onFlash: (message: string, type: 'add' | 'update' | 'delete' | 'error' | 'info') => void;
+  authToken?: string | null;
 }) {
   const [blogs, setBlogs] = useState<ApiBlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const blogsPerPage = 10;
+  const [categories, setCategories] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedUser, setSelectedUser] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const blogsPerPage = 5;
 
   useEffect(() => {
     fetchBlogs();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(API_ENDPOINTS.categories.get);
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
 
   const fetchBlogs = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://fastapi.phoneme.in/posts');
+      const response = await fetch(API_ENDPOINTS.blogs.get, {
+        headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+      });
       if (response.ok) {
         const data = await response.json();
-        const sorted = data.sort((a: ApiBlogPost, b: ApiBlogPost) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        setBlogs(sorted);
+        setBlogs(data);
       }
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -680,8 +706,9 @@ function BlogsSection({
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this blog?')) return;
     try {
-      const response = await fetch(`https://fastapi.phoneme.in/posts/${id}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_ENDPOINTS.blogs.delete}?id=${id}`, {
+        method: 'POST',
+        headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
       });
       if (response.ok) {
         setBlogs(blogs.filter(blog => blog.id !== id));
@@ -696,223 +723,205 @@ function BlogsSection({
     }
   };
 
+  // Extract unique authors from blogs for the filter
+  const authors = Array.from(new Set(blogs.map(b => b.created_user.name))).sort();
+
+  // Apply filters and sorting
+  const filteredBlogs = blogs
+    .filter(blog => {
+      const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           blog.post.replace(/<[^>]+>/g, '').toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === '' || blog.category.id.toString() === selectedCategory;
+      const matchesUser = selectedUser === '' || blog.created_user.name === selectedUser;
+      return matchesSearch && matchesCategory && matchesUser;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
   if (isLoading) {
     return <div className="py-12 text-center">Loading blogs...</div>;
   }
 
   const indexOfLast = currentPage * blogsPerPage;
   const indexOfFirst = indexOfLast - blogsPerPage;
-  const currentBlogs = blogs.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(blogs.length / blogsPerPage);
+  const currentBlogs = filteredBlogs.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
 
   return (
-    <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-      <div className="space-y-4">
-        {currentBlogs.map((blog) => {
-          const excerpt = blog.post.replace(/<[^>]+>/g, '').slice(0, 150) + '...';
-          return (
-            <div key={blog.id} className="flex gap-4 p-4 transition-shadow border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md">
-              <img
-                src={`https://fastapi.phoneme.in/${blog.image}`}
-                alt={blog.title}
-                className="flex-shrink-0 object-cover w-32 h-32 rounded-lg"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=200&h=200&fit=crop';
-                }}
-              />
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{blog.title}</h3>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                      <span className="px-2 py-1 text-xs text-blue-700 bg-blue-100 rounded">
-                        {blog.category.category_name}
-                      </span>
-                      <span>{blog.created_user.name}</span>
-                      <span>{new Date(blog.created_at).toLocaleDateString()}</span>
+    <div className="space-y-6">
+      {/* Filters and Sorting Controls */}
+      <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Search */}
+          <div className="lg:col-span-2">
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Search Blogs</label>
+            <input
+              type="text"
+              placeholder="Search by title or content..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            />
+          </div>
+
+          {/* Category Filter */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Category</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              value={selectedCategory}
+              onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.category_name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* User Filter */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Created By</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              value={selectedUser}
+              onChange={(e) => { setSelectedUser(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="">All Users</option>
+              {authors.map(author => (
+                <option key={author} value={author}>{author}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sorting */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Sort By</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+        
+        {/* Results Count */}
+        <div className="text-sm text-gray-500 flex justify-between items-center">
+          <span>Showing {filteredBlogs.length} {filteredBlogs.length === 1 ? 'blog' : 'blogs'}</span>
+          {(searchQuery || selectedCategory || selectedUser) && (
+            <button 
+              onClick={() => { setSearchQuery(''); setSelectedCategory(''); setSelectedUser(''); setCurrentPage(1); }}
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Clear All Filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Blogs List */}
+      <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+        {filteredBlogs.length === 0 ? (
+          <div className="py-12 text-center text-gray-500">
+            No blogs found matching your criteria.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {currentBlogs.map((blog) => {
+              const excerpt = blog.post.replace(/<[^>]+>/g, '').slice(0, 150) + '...';
+              return (
+                <div key={blog.id} className="flex flex-col sm:flex-row gap-4 p-4 transition-shadow border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md">
+                  <img
+                    src={`/backend/${blog.image}`}
+                    alt={blog.title}
+                    className="flex-shrink-0 object-cover w-full sm:w-32 h-48 sm:h-32 rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=200&h=200&fit=crop';
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">{blog.title}</h3>
+                        <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-gray-500">
+                          <span className="px-2 py-1 text-xs text-blue-700 bg-blue-100 rounded">
+                            {blog.category.category_name}
+                          </span>
+                          <span className="flex items-center gap-1"><User className="w-3 h-3"/> {blog.created_user.name}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> {new Date(blog.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mb-3 text-sm text-gray-600 line-clamp-2">{excerpt}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => onView(blog.id.toString())}
+                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-sm font-medium transition-colors"
+                      >
+                        Read More
+                      </button>
+                      <button
+                        onClick={() => onEdit(blog.id.toString())}
+                        className="px-3 py-1.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 rounded text-sm font-medium transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(blog.id)}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
-                <p className="mb-3 text-sm text-gray-600">{excerpt}</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onView(blog.id.toString())}
-                    className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-sm font-medium transition-colors"
-                  >
-                    Read More
-                  </button>
-                  <button
-                    onClick={() => onEdit(blog.id.toString())}
-                    className="px-3 py-1.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 rounded text-sm font-medium transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(blog.id)}
-                    className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              );
+            })}
+          </div>
+        )}
+        
+        {totalPages > 1 && (
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
             <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 rounded ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 rounded text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
             >
-              {page}
+              Previous
             </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+            
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-10 h-10 flex items-center justify-center rounded text-sm font-medium transition-colors ${
+                    currentPage === page 
+                      ? 'bg-blue-600 text-white shadow-md' 
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
 
-function CreateBlogSection({ blogId, onBack, onSuccess }: { blogId?: string; onBack: () => void; onSuccess: () => void }) {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
-    category: '',
-    title: '',
-    body: '',
-    image: null as File | null,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [flash, setFlash] = useState({ message: '', type: '' });
-
-  useEffect(() => {
-    fetch('https://fastapi.phoneme.in/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data))
-      .catch(error => console.error('Error fetching categories:', error));
-
-    if (blogId) {
-      fetch(`https://fastapi.phoneme.in/posts/${blogId}`)
-        .then(res => res.json())
-        .then(data => {
-          setFormData({
-            category: data.category.id.toString(),
-            title: data.title,
-            body: data.post,
-            image: null,
-          });
-        })
-        .catch(error => console.error('Error fetching blog:', error));
-    }
-  }, [blogId]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.category || !formData.title || !formData.body) {
-      setFlash({ message: 'Please fill in all required fields', type: 'error' });
-      return;
-    }
-
-    const data = new FormData();
-    if (blogId) {
-      data.append('id', parseInt(blogId, 10).toString());
-    }
-    data.append('category_id', parseInt(formData.category, 10).toString());
-    data.append('title', formData.title);
-    data.append('post', formData.body);
-    data.append('created_by', '1');
-
-    if (formData.image) {
-      data.append('image', formData.image);
-    } else if (!blogId) {
-      setFlash({ message: 'Please upload an image', type: 'error' });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const url = blogId ? `https://fastapi.phoneme.in/posts/${blogId}` : 'https://fastapi.phoneme.in/posts';
-      const method = blogId ? 'PUT' : 'POST';
-      const response = await fetch(url, { method, body: data });
-
-      if (response.ok) {
-        setFlash({ message: blogId ? 'Blog updated successfully!' : 'Blog created successfully!', type: 'success' });
-        setTimeout(() => onSuccess(), 1500);
-      } else {
-        const errorData = await response.json();
-        setFlash({ message: errorData.detail || 'Failed to save blog', type: 'error' });
-      }
-    } catch (error) {
-      setFlash({ message: 'An error occurred', type: 'error' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-      <button onClick={onBack} className="mb-4 font-medium text-blue-600 hover:text-blue-700">
-        ← Back to Blogs
-      </button>
-      {flash.message && (
-        <div className={`mb-4 p-3 rounded ${flash.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-          {flash.message}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-700">Title</label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-700">Category</label>
-          <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.category_name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-700">Content</label>
-          <textarea
-            value={formData.body}
-            onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={10}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-700">Upload Image {blogId && '(optional)'}</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFormData({ ...formData, image: e.target.files?.[0] || null })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isLoading ? 'Saving...' : blogId ? 'Update Blog' : 'Create Blog'}
-        </button>
-      </form>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 rounded text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -922,7 +931,7 @@ function ViewBlogSection({ blogId, onBack }: { blogId: string; onBack: () => voi
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`https://fastapi.phoneme.in/posts/${blogId}`)
+    fetch(`${API_ENDPOINTS.blogs.get}?id=${blogId}`)
       .then(res => res.json())
       .then(data => {
         setBlog(data);
@@ -935,40 +944,122 @@ function ViewBlogSection({ blogId, onBack }: { blogId: string; onBack: () => voi
   }, [blogId]);
 
   if (isLoading) {
-    return <div className="py-12 text-center">Loading...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-600 font-medium">Loading article details...</p>
+      </div>
+    );
   }
 
   if (!blog) {
-    return <div className="py-12 text-center">Blog not found</div>;
+    return (
+      <div className="text-center py-20 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+        <h3 className="text-xl font-bold text-gray-900">Blog not found</h3>
+        <button onClick={onBack} className="mt-4 text-blue-600 hover:underline font-medium">
+          Return to blogs list
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-      <button onClick={onBack} className="mb-4 font-medium text-blue-600 hover:text-blue-700">
-        ← Back to Blogs
-      </button>
-      <article>
-        <img
-          src={`https://fastapi.phoneme.in/${blog.image}`}
-          alt={blog.title}
-          className="object-cover w-full mb-6 rounded-lg h-96"
-          onError={(e) => {
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=1200&h=600&fit=crop';
-          }}
-        />
-        <div className="flex items-center gap-3 mb-4 text-sm text-gray-500">
-          <span className="px-3 py-1 text-blue-700 bg-blue-100 rounded-full">
+    <div className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-lg rounded-2xl overflow-hidden">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <button 
+          onClick={onBack} 
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium group"
+        >
+          <div className="p-1.5 rounded-full group-hover:bg-blue-50 transition-colors">
+            <X className="w-5 h-5" />
+          </div>
+          <span>Close Preview</span>
+        </button>
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">
             {blog.category.category_name}
           </span>
-          <span>{blog.created_user.name}</span>
-          <span>{new Date(blog.created_at).toLocaleDateString()}</span>
         </div>
-        <h1 className="mb-6 text-3xl font-bold text-gray-900">{blog.title}</h1>
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: blog.post }}
-        />
+      </div>
+
+      <article className="p-6 md:p-10">
+        {/* Title and Meta */}
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
+            {blog.title}
+          </h1>
+          
+          <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500 border-y border-gray-100 py-4">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                <User className="w-5 h-5" />
+              </div>
+              <span className="font-semibold text-gray-900">{blog.created_user.name}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-400" />
+              <span>{new Date(blog.created_at).toLocaleDateString('en-US', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              })}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Featured Image */}
+        <div className="relative aspect-video mb-10 rounded-2xl overflow-hidden shadow-xl ring-1 ring-gray-200">
+          <img
+            src={`/backend/${blog.image}`}
+            alt={blog.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=1200&h=600&fit=crop';
+            }}
+          />
+        </div>
+
+        {/* Blog Content with Custom Typography Styling */}
+        <div className="rich-text-content mx-auto max-w-none">
+          <style>{`
+            .rich-text-content {
+              color: #374151;
+              line-height: 1.8;
+              font-size: 1.125rem;
+            }
+            .rich-text-content h1 { font-size: 2.25rem; font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: #111827; }
+            .rich-text-content h2 { font-size: 1.875rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #111827; }
+            .rich-text-content h3 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #111827; }
+            .rich-text-content p { margin-bottom: 1.25rem; }
+            .rich-text-content img { border-radius: 1rem; margin: 2rem auto; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+            .rich-text-content ul, .rich-text-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+            .rich-text-content ul { list-style-type: disc; }
+            .rich-text-content ol { list-style-type: decimal; }
+            .rich-text-content li { margin-bottom: 0.5rem; }
+            .rich-text-content blockquote { 
+              border-left: 4px solid #3b82f6; 
+              padding-left: 1.5rem; 
+              font-style: italic; 
+              color: #4b5563; 
+              margin: 2rem 0;
+              background: #f9fafb;
+              padding: 1.5rem;
+              border-radius: 0 1rem 1rem 0;
+            }
+            .rich-text-content strong { color: #111827; font-weight: 700; }
+            .rich-text-content a { color: #2563eb; text-decoration: underline; }
+          `}</style>
+          <div dangerouslySetInnerHTML={{ __html: blog.post }} />
+        </div>
       </article>
+      
+      {/* Footer info */}
+      <footer className="bg-gray-50 border-t border-gray-100 p-8 text-center text-gray-500 text-sm">
+        <p>Previewing as Administrator • {blog.title}</p>
+      </footer>
     </div>
   );
 }

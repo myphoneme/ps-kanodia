@@ -7,6 +7,7 @@ import { globalContext } from '../Context';
 import { FlashMessage } from '../../FlashMessage';
 import Loading from '../Loading/Loading';
 import { useLocation } from 'react-router-dom'; // for the post count click
+import { API_ENDPOINTS } from '../../utils/config';
 
 const BlogList = () => {
 
@@ -48,10 +49,10 @@ const BlogList = () => {
       const fetchBlogs = async () => {
         setIsLoading(true);
         try {
-          let url = 'https://fastapi.phoneme.in/posts'; // Default URL to fetch all posts
+          let url = API_ENDPOINTS.blogs.get; // Default URL to fetch all posts
           if (categoryId) {
             // If categoryId exists, use the specific endpoint to filter by category
-            url = `https://fastapi.phoneme.in/get_posts_by_category_id/${categoryId}`;
+            url = `${API_ENDPOINTS.blogs.getByCategory}?id=${categoryId}`;
           }
   
           const response = await fetch(url);
@@ -76,8 +77,8 @@ const BlogList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this blog?')) return;
     try {
-      const response = await fetch(`https://fastapi.phoneme.in/posts/${id}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_ENDPOINTS.blogs.delete}?id=${id}`, {
+        method: 'POST', // Some PHP setups prefer POST for delete with ID
       });
       if (!response.ok) throw new Error('Failed to delete blog');
       setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== id));
@@ -126,7 +127,7 @@ const BlogList = () => {
                   <Col md={4}>
                   <div className={styles.imageContainer}>
                     <img
-                      src={`https://fastapi.phoneme.in/${blog.image}`}
+                      src={`/backend/${blog.image}`}
                       alt={blog.title}
                       className={styles.blogImage}
                     />
@@ -188,7 +189,7 @@ const BlogList = () => {
               {sortedBlogs.slice(0, 5).map((blog) => (
                 <div key={blog.id} className={`${styles.recentPost} ${mode === 'light' ? "bg-light text-dark" : "bg-dark text-light"}`} onClick={() => handleReadMore(blog.id)}>
                   <img
-                    src={`https://fastapi.phoneme.in/${blog.image}`}
+                    src={`/backend/${blog.image}`}
                     alt={blog.title}
                     className={styles.recentPostImage}
                   />

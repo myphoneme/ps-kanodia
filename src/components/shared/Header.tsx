@@ -59,17 +59,16 @@ export default function Header({ onLogin, isLoggedIn, onLogout, onNavigate }: He
             <Link to="/about" className={styles.navLink}>About</Link>
             <Link to="/contact" className={styles.navLink}>Contact</Link>
             <Link to="/blog" className={styles.navLink}>Blog</Link>
-           <a
-              href="https://capsk.co.in/task"
-              className={styles.navLink}
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.href = "https://capsk.co.in/task";
-              }}
-            >
-              Task-Management
-          </a>
-
+                         <a 
+                           href="https://capsk.co.in/task/" 
+                           className={styles.navLink}
+                           onClick={(e) => {
+                             e.preventDefault();
+                             window.location.href = "https://capsk.co.in/task/";
+                           }}
+                         >
+                           Task-Management
+                         </a>
           </div>
 
           <div className={styles.rightSection}>

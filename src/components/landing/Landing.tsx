@@ -6,6 +6,8 @@ import styles from './Landing.module.css';
 import { insertContact } from '../../utils/contactsApi';
 import { FlashMessage } from '../../FlashMessage';
 
+import { API_ENDPOINTS } from '../../utils/config';
+
 interface ApiBlogPost {
   id: number;
   title: string;
@@ -68,7 +70,7 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
     const fetchLatestBlogs = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('https://fastapi.phoneme.in/posts');
+        const response = await fetch(API_ENDPOINTS.blogs.get);
         if (response.ok) {
           const data = await response.json();
           const sortedBlogs = data.sort((a: ApiBlogPost, b: ApiBlogPost) =>
@@ -207,7 +209,7 @@ export default function Landing({ onLogin, onNavigate, isLoggedIn, onLogout }: L
                   <article key={blog.id} className={styles.blogCard}>
                     <div className={styles.blogImage}>
                       <img
-                        src={`https://fastapi.phoneme.in/${blog.image}`}
+                        src={`/backend/${blog.image}`}
                         alt={blog.title}
                         onError={(e) => {
                           e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=600&h=400&fit=crop';

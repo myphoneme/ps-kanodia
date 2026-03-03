@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Handle Authorization Header stripping by Apache
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
+# Optional: Redirect all requests to a single entry point if needed
+# But for now, just ensure headers are passed.

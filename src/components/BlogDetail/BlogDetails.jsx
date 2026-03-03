@@ -14,6 +14,8 @@ import {
 import styles from './BlogDetail.module.css';
 import Loading from '../Loading/Loading'; // ⭐️ Added loading component
 
+import { API_ENDPOINTS } from '../../utils/config';
+
 function BlogDetails() {
   const { id } = useParams(); // Get the id from the URL
   const [post, setPost] = useState(null);
@@ -31,12 +33,12 @@ function BlogDetails() {
     });
   
     // Fetch the full post using the id from the URL
-    fetch(`https://fastapi.phoneme.in/posts/${id}`)
+    fetch(`${API_ENDPOINTS.blogs.get}?id=${id}`)
       .then((response) => response.json())
       .then((data) => setPost(data))
       .catch((error) => console.error('Error fetching post details:', error));
 
-    fetch(`https://fastapi.phoneme.in/posts?limit=5`)
+    fetch(API_ENDPOINTS.blogs.get)
       .then((response) => response.json())
       .then((data) => {
         const sortedPosts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -61,7 +63,7 @@ function BlogDetails() {
             <div className={`${styles.contentWrapper} ${mode === 'light' ? "bg-light text-dark" : "bg-dark text-light"}`}>
               <div className={styles.featuredImage}>
                 <img
-                  src={`https://fastapi.phoneme.in/${post.image}`} 
+                  src={`/backend/${post.image}`} 
                   alt="Featured"
                 />
               </div>
@@ -144,7 +146,7 @@ function BlogDetails() {
                 {relatedPosts.map((blog, index) => (
                   <Link to={`/details/${blog.id}`} key={blog.id} className={styles.relatedPostLink}>
                     <div key={index} className={styles.relatedPost}>
-                      <img src={`https://fastapi.phoneme.in/${blog.image}`} alt={blog.title} />
+                      <img src={`/backend/${blog.image}`} alt={blog.title} />
                       <div>
                         <h4>{blog.title}</h4>
                         <span><Calendar size={14} />  {new Date(blog.created_at).toLocaleDateString()}</span>

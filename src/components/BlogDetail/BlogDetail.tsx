@@ -4,6 +4,8 @@ import {
 } from 'lucide-react';
 import styles from './BlogDetail.module.css';
 
+import { API_ENDPOINTS } from '../../utils/config';
+
 interface ApiBlogPost {
   id: number;
   title: string;
@@ -34,8 +36,8 @@ export default function BlogDetail({ blogId, onNavigate }: BlogDetailProps) {
         window.scrollTo(0, 0);
 
         const [postRes, allRes] = await Promise.all([
-          fetch(`https://fastapi.phoneme.in/posts/${blogId}`),
-          fetch('https://fastapi.phoneme.in/posts')
+          fetch(`${API_ENDPOINTS.blogs.get}?id=${blogId}`),
+          fetch(API_ENDPOINTS.blogs.get)
         ]);
 
         if (postRes.ok) {
@@ -124,7 +126,7 @@ export default function BlogDetail({ blogId, onNavigate }: BlogDetailProps) {
 
               <div className={styles.heroWrapper}>
                 <img
-                  src={`https://fastapi.phoneme.in/${post.image}`}
+                  src={`/backend/${post.image}`}
                   alt={post.title}
                   className={styles.hero}
                   onError={(e) => {
@@ -169,7 +171,7 @@ export default function BlogDetail({ blogId, onNavigate }: BlogDetailProps) {
                   {relatedPosts.slice(0, 5).map((p) => (
                     <button key={p.id} onClick={() => onNavigate(`blogDetail:${p.id}`)} className={styles.recentItem}>
                       <img
-                        src={`https://fastapi.phoneme.in/${p.image}`}
+                        src={`/backend/${p.image}`}
                         alt={p.title}
                         onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop'}
                       />

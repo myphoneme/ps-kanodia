@@ -19,6 +19,7 @@ import styles from './Categories.module.css';
 import { globalContext } from '../Context';
 import { Link } from 'react-router-dom';
 import Loading from '../Loading/Loading'; // ★ Added Loading component import
+import { API_ENDPOINTS } from '../../utils/config';
 
 
 const iconMapping = {
@@ -45,7 +46,7 @@ const fetchImageForCategory = async (categoryName) => {
   }
 };
 
-function CategoriesList() {
+function CategoriesList({ authToken }) {
   const { mode } = useContext(globalContext);//theme
   const [categories, setCategories] = useState([]);
   const [isGridView, setIsGridView] = useState(true);
@@ -57,8 +58,9 @@ function CategoriesList() {
 
   const fetchPostCount = async (categoryId) => {
     try {
-      const response = await fetch(`https://fastapi.phoneme.in/get_posts_by_category_id/${categoryId}`, {
-        method: 'GET',  // Using GET method as per your endpoint
+      const response = await fetch(`${API_ENDPOINTS.blogs.getByCategory}?id=${categoryId}`, {
+        method: 'GET',
+        headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
       });
   
       if (response.status === 404) {
@@ -81,7 +83,9 @@ function CategoriesList() {
   const fetchCategories = async () => {
     setIsLoading(true); // ★ Set loading state to true before fetching
     try {
-      const response = await fetch('https://fastapi.phoneme.in/categories');
+      const response = await fetch(API_ENDPOINTS.categories.get, {
+        headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+      });
       if (!response.ok) {
         throw new Error('Error fetching categories');
       }
@@ -120,16 +124,20 @@ function CategoriesList() {
 
   const handleSaveCategory = async (category) => {
     const url = category.id
-      ? `https://fastapi.phoneme.in/categories/${category.id}`
-      : 'https://fastapi.phoneme.in/categories';
+      ? API_ENDPOINTS.categories.update
+      : API_ENDPOINTS.categories.insert;
 
-    const method = category.id ? 'PUT' : 'POST';
+    const method = 'POST'; // Most of your PHP scripts use POST for updates/inserts
 
     try {
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+        },
         body: JSON.stringify({
+          id: category.id,
           category_name: category.name,
         }),
       });
@@ -143,7 +151,7 @@ function CategoriesList() {
       } else {
         const errorData = await response.json();
         setFlash({
-          message: errorData.detail || `Failed to ${category.id ? 'update' : 'add'} category`,
+          message: errorData.message || errorData.detail || `Failed to ${category.id ? 'update' : 'add'} category`,
           type: "error"
         });
       }
@@ -164,8 +172,9 @@ function CategoriesList() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`https://fastapi.phoneme.in/categories/${categoryId}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_ENDPOINTS.categories.delete}?id=${categoryId}`, {
+        method: 'POST',
+        headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
       });
 
       if (response.ok) {
@@ -177,7 +186,7 @@ function CategoriesList() {
       } else {
         const errorData = await response.json();
         setFlash({
-          message: errorData.detail || "Failed to delete category",
+          message: errorData.message || errorData.detail || "Failed to delete category",
           type: "error"
         });
       }

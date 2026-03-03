@@ -3,6 +3,8 @@ import styles from './Blog.module.css';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { API_ENDPOINTS } from '../../utils/config';
+
 interface ApiBlogPost {
   id: number;
   title: string;
@@ -43,8 +45,8 @@ export default function Blog({ isPrivate = false, isLoggedIn = false }: BlogProp
         setIsLoading(true);
 
         const [blogsResponse, categoriesResponse] = await Promise.all([
-          fetch('https://fastapi.phoneme.in/posts'),
-          fetch('https://fastapi.phoneme.in/categories')
+          fetch(API_ENDPOINTS.blogs.get),
+          fetch(API_ENDPOINTS.categories.get)
         ]);
 
         if (blogsResponse.ok) {
@@ -135,7 +137,7 @@ export default function Blog({ isPrivate = false, isLoggedIn = false }: BlogProp
                   <article key={blog.id} className={styles.blogCard}>
                     <div className={styles.blogImage}>
                       <img
-                        src={`https://fastapi.phoneme.in/${blog.image}`}
+                        src={`/backend/${blog.image}`}
                         alt={blog.title}
                         onError={(e) => {
                           e.currentTarget.src = 'https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=600&h=400&fit=crop';

@@ -1,0 +1,5 @@
+[14-Nov-2025 09:30:47 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Duplicate entry 'aksa@gmail.com' for key 'email' in /home/hmqodbhvxld1/public_html/api/users/create.php:28
+Stack trace:
+#0 /home/hmqodbhvxld1/public_html/api/users/create.php(28): mysqli_query()
+#1 {main}
+  thrown in /home/hmqodbhvxld1/public_html/api/users/create.php on line 28

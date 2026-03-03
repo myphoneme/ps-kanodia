@@ -7,4 +7,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    proxy: {
+      '/backend': {
+        target: 'http://localhost/ps-kanodia',
+        changeOrigin: true,
+      },
+    },
+  },
 });

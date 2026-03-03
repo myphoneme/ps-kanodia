@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from './config';
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-const LOGIN_URL = 'https://capsk.co.in/api/login.php';
+const LOGIN_URL = API_ENDPOINTS.login;
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
   // console.log("email: "+ email + " password: "+ password);

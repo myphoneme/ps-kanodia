@@ -5,6 +5,10 @@ import { FlashMessage } from '../../FlashMessage';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import ImageResize from 'quill-image-resize-module-react';
+import { API_ENDPOINTS } from '../../utils/config';
+import { AuthUser } from '../../utils/auth';
+
+import { Eye, X, User, Clock, FileText } from 'lucide-react';
 
 Quill.register('modules/imageResize', ImageResize);
 
@@ -12,6 +16,8 @@ interface CreateBlogProps {
   id?: string;
   onBack?: () => void;
   onSuccess?: () => void;
+  authToken?: string | null;
+  currentUser?: AuthUser | null;
 }
 
 interface BlogData {
@@ -22,7 +28,7 @@ interface BlogData {
   category: { id: number; category_name: string };
 }
 
-const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }) => {
+const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess, authToken, currentUser }) => {
   const { mode } = useContext(globalContext);
   const quillRef = useRef<any>(null);
 
@@ -40,6 +46,8 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
     image: null as File | null,
   });
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const modules = useMemo(() => {
     const imageHandler = () => {
       const input = document.createElement('input');
@@ -55,22 +63,27 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
         uploadFormData.append('file', file);
 
         try {
-          const res = await fetch('https://fastapi.phoneme.in/upload', {
+          const res = await fetch(API_ENDPOINTS.blogs.upload, {
             method: 'POST',
             body: uploadFormData,
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
           });
 
-          if (!res.ok) throw new Error('Upload failed');
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Upload failed');
+          }
           const data = await res.json();
 
           const editor = quillRef.current?.getEditor();
           if (!editor) return;
 
           const range = editor.getSelection() || { index: 0 };
-          editor.insertEmbed(range.index, 'image', data.url);
+          // Prepend /backend/ to the returned relative path
+          editor.insertEmbed(range.index, 'image', `/backend/${data.url}`);
           editor.setSelection(range.index + 1);
-        } catch (err) {
-          setFlash({ message: 'Failed to upload image to editor', type: 'error' });
+        } catch (err: any) {
+          setFlash({ message: err.message || 'Failed to upload image to editor', type: 'error' });
         }
       };
     };
@@ -92,16 +105,16 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
         modules: ['Resize', 'DisplaySize', 'Toolbar'],
       },
     };
-  }, []);
+  }, [authToken]);
 
   useEffect(() => {
-    fetch('https://fastapi.phoneme.in/categories')
+    fetch(API_ENDPOINTS.categories.get)
       .then(res => res.json())
       .then(setCategories)
       .catch(() => setFlash({ message: "Failed to load categories", type: "error" }));
 
     if (blogId) {
-      fetch(`https://fastapi.phoneme.in/posts/${blogId}`)
+      fetch(`${API_ENDPOINTS.blogs.get}?id=${blogId}`)
         .then(res => res.json())
         .then(data => {
           setBlogData(data);
@@ -139,7 +152,7 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
   data.append('category_id', formData.category);
   data.append('title', formData.title.trim());
   data.append('post', formData.body);
-  data.append('created_by', '1');
+  data.append('created_by', currentUser?.id || '1');
 
   if (formData.image) {
     // New image selected
@@ -147,7 +160,7 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
   } else if (isEditMode && blogData?.image) {
     // Keep old image — correctly fetch with proper URL
     try {
-      const imageUrl = new URL(blogData.image, 'https://fastapi.phoneme.in').toString();
+      const imageUrl = new URL(blogData.image, window.location.origin + '/backend/').toString();
       const response = await fetch(imageUrl);
       if (!response.ok) throw new Error('Failed to fetch image');
 
@@ -166,17 +179,18 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
 
   try {
     const url = isEditMode
-      ? `https://fastapi.phoneme.in/posts/${blogId}`
-      : 'https://fastapi.phoneme.in/posts';
+      ? API_ENDPOINTS.blogs.update
+      : API_ENDPOINTS.blogs.insert;
 
     const response = await fetch(url, {
-      method: isEditMode ? 'PUT' : 'POST',
+      method: 'POST', // PHP always uses POST for FormData with files
       body: data,
+      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
     });
 
     if (!response.ok) {
       const err = await response.json();
-      throw new Error(err.detail?.[0]?.msg || 'Save failed');
+      throw new Error(err.message || 'Save failed');
     }
 
     setFlash({
@@ -262,21 +276,20 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
             </label>
 
             {/* Show current image as clickable filename */}
-            {isEditMode && blogData?.image && !formData.image && (
-              <div className={styles.currentImageInfo}>
-                <span className={styles.currentLabel}>Current Image:</span>{' '}
-                <a
-                  href={`https://fastapi.phoneme.in${blogData.image}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.imageLink}
-                >
-                  {blogData.image.split('/').pop()}
-                </a>
-                <span className={styles.changeHint}> → Upload new to replace</span>
-              </div>
-            )}
-
+                        {isEditMode && blogData?.image && !formData.image && (
+                          <div className={styles.currentImageInfo}>
+                            <span className={styles.currentLabel}>Current Image:</span>{' '}
+                            <a 
+                              href={`/backend/${blogData.image}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className={styles.imageLink}
+                            >
+                              {blogData.image.split('/').pop()}
+                            </a>
+                            <span className={styles.changeHint}> → Upload new to replace</span>
+                          </div>
+                        )}
             {/* Show new selected image */}
             {formData.image && (
               <div className={styles.newImageInfo}>
@@ -302,12 +315,123 @@ const CreateBlog: React.FC<CreateBlogProps> = ({ id: propId, onBack, onSuccess }
           </div>
 
           <div className={styles.actions}>
+            <button 
+              type="button" 
+              onClick={() => setIsPreviewOpen(true)}
+              className="px-6 py-3 rounded-lg border-2 border-indigo-600 text-indigo-600 font-bold hover:bg-indigo-50 transition-colors flex items-center gap-2"
+            >
+              <Eye className="w-5 h-5" />
+              Preview Post
+            </button>
             <button type="submit" className={styles.submitBtn}>
               {isEditMode ? 'Update Blog' : 'Publish Blog'}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Preview Modal Overlay */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 md:p-8">
+          <div className="bg-gray-50 w-full max-w-5xl rounded-2xl shadow-2xl relative animate-in fade-in zoom-in duration-200 origin-top">
+            
+            {/* Modal Header */}
+            <div className="sticky top-0 z-[110] bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-gray-900">Live Preview</h3>
+              </div>
+              <button 
+                onClick={() => setIsPreviewOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Preview Content (Replicating ViewBlogSection style) */}
+            <div className="p-4 md:p-10">
+              <div className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-sm rounded-2xl overflow-hidden">
+                <article className="p-6 md:p-10">
+                  <header className="mb-8 text-center">
+                    <div className="mb-4">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">
+                        {categories.find(c => c.id.toString() === formData.category)?.category_name || 'Uncategorized'}
+                      </span>
+                    </div>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-6">
+                      {formData.title || 'Your Blog Title Here'}
+                    </h1>
+                    
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500 border-y border-gray-100 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <span className="font-semibold text-gray-900">{currentUser?.name || 'Admin'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-gray-400" />
+                        <span>{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                      </div>
+                    </div>
+                  </header>
+
+                  {/* Featured Image Preview */}
+                  <div className="relative aspect-video mb-10 rounded-2xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                    {formData.image ? (
+                      <img
+                        src={URL.createObjectURL(formData.image)}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : isEditMode && blogData?.image ? (
+                      <img
+                        src={`/backend/${blogData.image}`}
+                        alt="Existing"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-400 flex flex-col items-center">
+                        <FileText className="w-12 h-12 mb-2 opacity-20" />
+                        <span>No featured image selected</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rich-text-preview mx-auto max-w-none">
+                    <style>{`
+                      .rich-text-preview { color: #374151; line-height: 1.8; font-size: 1.125rem; }
+                      .rich-text-preview h1 { font-size: 2.25rem; font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: #111827; }
+                      .rich-text-preview h2 { font-size: 1.875rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #111827; }
+                      .rich-text-preview h3 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #111827; }
+                      .rich-text-preview p { margin-bottom: 1.25rem; }
+                      .rich-text-preview img { border-radius: 1rem; margin: 2rem auto; max-width: 100%; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+                      .rich-text-preview ul, .rich-text-preview ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+                      .rich-text-preview ul { list-style-type: disc; }
+                      .rich-text-preview ol { list-style-type: decimal; }
+                      .rich-text-preview blockquote { border-left: 4px solid #3b82f6; padding: 1.5rem; font-style: italic; color: #4b5563; margin: 2rem 0; background: #f9fafb; border-radius: 0 1rem 1rem 0; }
+                    `}</style>
+                    <div dangerouslySetInnerHTML={{ __html: formData.body || '<p class="text-gray-400 italic">No content yet...</p>' }} />
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-center">
+              <button 
+                onClick={() => setIsPreviewOpen(false)}
+                className="px-8 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-95"
+              >
+                Back to Editing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

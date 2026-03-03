@@ -1,0 +1,34 @@
+[13-Nov-2025 09:50:39 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 5
+[13-Nov-2025 09:50:39 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 5
+[13-Nov-2025 09:50:39 UTC] PHP Warning:  Undefined variable $con in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 7
+[13-Nov-2025 09:50:39 UTC] PHP Fatal error:  Uncaught TypeError: mysqli_query(): Argument #1 ($mysql) must be of type mysqli, null given in /home/hmqodbhvxld1/public_html/api/contacts/get.php:7
+Stack trace:
+#0 /home/hmqodbhvxld1/public_html/api/contacts/get.php(7): mysqli_query()
+#1 {main}
+  thrown in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 7
+[13-Nov-2025 09:51:04 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 5
+[13-Nov-2025 09:51:04 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 5
+[13-Nov-2025 09:51:04 UTC] PHP Warning:  Undefined variable $con in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 7
+[13-Nov-2025 09:51:04 UTC] PHP Fatal error:  Uncaught TypeError: mysqli_query(): Argument #1 ($mysql) must be of type mysqli, null given in /home/hmqodbhvxld1/public_html/api/contacts/get.php:7
+Stack trace:
+#0 /home/hmqodbhvxld1/public_html/api/contacts/get.php(7): mysqli_query()
+#1 {main}
+  thrown in /home/hmqodbhvxld1/public_html/api/contacts/get.php on line 7
+[13-Nov-2025 10:05:20 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:05:20 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:09:00 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:09:00 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:21:11 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:21:11 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:22:03 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:22:03 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:24:47 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:24:47 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:28:13 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:28:13 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:29:06 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:29:06 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:32:31 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:32:31 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:37:15 UTC] PHP Warning:  include(conn.php): Failed to open stream: No such file or directory in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5
+[13-Nov-2025 10:37:15 UTC] PHP Warning:  include(): Failed opening 'conn.php' for inclusion (include_path='.:/opt/alt/php83/usr/share/pear:/opt/alt/php83/usr/share/php:/usr/share/pear:/usr/share/php') in /home/hmqodbhvxld1/public_html/api/contacts/insert.php on line 5

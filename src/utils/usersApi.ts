@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from './config';
+
 export interface UserRecord {
   id: string;
   name: string;
@@ -23,7 +25,7 @@ export interface UpdateUserPayload {
   status?: number;
 }
 
-const BASE_URL = 'https://capsk.co.in/api/users';
+const BASE_URL = API_ENDPOINTS.users.base;
 
 const defaultHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
@@ -32,7 +34,7 @@ const defaultHeaders = (token: string) => ({
 
 export async function getUsers(token: string): Promise<UserRecord[]> {
   // console.log("token: "+ token);
-  const response = await fetch('https://capsk.co.in/api/users/read.php', {
+  const response = await fetch(API_ENDPOINTS.users.read, {
     method: 'GET',
     headers: defaultHeaders(token)
   
@@ -77,7 +79,7 @@ export async function updateUser(payload: UpdateUserPayload, token: string): Pro
 }
 
 export async function deleteUser(id: string, token: string): Promise<void> {
-  const response = await fetch('https://capsk.co.in/api/users/delete.php', {
+  const response = await fetch(API_ENDPOINTS.users.delete, {
     method: 'POST',
     headers: defaultHeaders(token),
     body: JSON.stringify({ id: parseInt(id, 10) }),

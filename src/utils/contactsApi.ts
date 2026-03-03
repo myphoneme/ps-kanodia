@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from './config';
+
 export interface ContactPayload {
   name: string;
   email: string;
@@ -15,10 +17,10 @@ export interface ContactRecord {
   created_at?: string;
 }
 
-const BASE = 'https://capsk.co.in/api/contacts';
+const BASE = API_ENDPOINTS.contacts.base;
 
 export async function insertContact(payload: ContactPayload): Promise<{ status: string; message: string }> {
-  const response = await fetch('https://capsk.co.in/api/contacts/insert.php', {
+  const response = await fetch(API_ENDPOINTS.contacts.insert, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
